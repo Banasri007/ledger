@@ -14,11 +14,11 @@ import { TIER_META } from "../ui/tiers.js";
 /* ---------- the hero: bipartite graph ---------- */
 function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty }) {
   const { bank, ledger } = batch;
-  const rowH = 16;
+  const rowH = 17;
   const H = Math.max(bank.length, ledger.length) * rowH + 24;
-  const W = 620;
-  const xL = 205,
-    xR = 415;
+  const W = 720;
+  const xL = 175,
+    xR = 545;
 
   const yB = (i) => 14 + i * rowH;
   const yL = (i) => 14 + i * rowH;
@@ -76,7 +76,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
 
   const chip = {
     fontFamily: MONO,
-    fontSize: 9.5,
+    fontSize: 11.6,
     letterSpacing: "0.14em",
     padding: "4px 10px",
     borderRadius: 6,
@@ -97,7 +97,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
             padding: "11px 26px",
             borderBottom: `1px solid ${T.line}`,
             fontFamily: MONO,
-            fontSize: 9.5,
+            fontSize: 11.6,
             letterSpacing: "0.16em",
             color: T.dim,
           }}
@@ -131,7 +131,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
                 justifyContent: "space-between",
                 alignItems: "center",
                 fontFamily: MONO,
-                fontSize: 9.5,
+                fontSize: 11.6,
                 letterSpacing: "0.16em",
                 color: T.gold,
                 marginBottom: 10,
@@ -147,7 +147,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
                   border: "none",
                   cursor: "pointer",
                   fontFamily: MONO,
-                  fontSize: 9.5,
+                  fontSize: 11.6,
                   letterSpacing: "0.16em",
                   color: T.dim,
                   padding: 0,
@@ -227,14 +227,14 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
               >
                 <rect x={8} y={yB(i) - 8} width={xL - 6} height={16} fill="transparent" />
                 <text
-                  x={20}
+                  x={12}
                   y={yB(i) + 2.6}
                   fontFamily={MONO}
-                  fontSize={7.4}
+                  fontSize={8.2}
                   fill={lit ? T.gold : T.dim}
                 >
-                  {b.counterparty.length > 20
-                    ? b.counterparty.slice(0, 20) + "…"
+                  {b.counterparty.length > 16
+                    ? b.counterparty.slice(0, 16) + "…"
                     : b.counterparty}
                 </text>
                 <text
@@ -242,7 +242,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
                   y={yB(i) + 2.6}
                   textAnchor="end"
                   fontFamily={MONO}
-                  fontSize={7.4}
+                  fontSize={8.2}
                   fill={lit ? T.gold : matchedB.has(b.id) ? T.text : T.bad}
                 >
                   {fmt(b.amount)}
@@ -277,19 +277,19 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
                   strokeWidth={0.9}
                 />
                 <text
-                  x={xR + 10}
+                  x={xR + 11}
                   y={yL(i) + 2.6}
                   fontFamily={MONO}
-                  fontSize={7.4}
+                  fontSize={8.2}
                   fill={lit ? T.gold : T.muted}
                 >
                   {l.ref}
                 </text>
                 <text
-                  x={xR + 62}
+                  x={xR + 63}
                   y={yL(i) + 2.6}
                   fontFamily={MONO}
-                  fontSize={7.4}
+                  fontSize={8.2}
                   fill={lit ? T.gold : T.dim}
                 >
                   {fmt(l.amount)}
@@ -305,11 +305,11 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
       <div
         style={{
           ...PANEL,
-          width: 292,
+          width: 348,
           flexShrink: 0,
           padding: 22,
           fontFamily: MONO,
-          fontSize: 11,
+          fontSize: 13.4,
           color: T.muted,
           position: "sticky",
           top: 76,
@@ -347,7 +347,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
           </div>
         ) : (
           <div style={{ lineHeight: 1.8 }}>
-            <div style={{ color: T.text, fontSize: 13, fontWeight: 600 }}>{hover.rec.id}</div>
+            <div style={{ color: T.text, fontSize: 14.9, fontWeight: 600 }}>{hover.rec.id}</div>
             <div>{fmt(hover.rec.amount)}</div>
             <div>{hover.rec.counterparty}</div>
             <div>{dstr(hover.rec.date)}</div>
@@ -358,7 +358,7 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
                 <div style={{ color: TIER_META[hover.m.tier].color }}>
                   Tier {hover.m.tier} &middot; {TIER_META[hover.m.tier].name}
                 </div>
-                <div style={{ color: T.text, fontSize: 22, fontWeight: 700, margin: "6px 0" }}>
+                <div style={{ color: T.text, fontSize: 23.8, fontWeight: 700, margin: "6px 0" }}>
                   {hover.m.confidence.toFixed(2)}
                 </div>
                 <div style={{ color: T.muted, lineHeight: 1.6 }}>{hover.m.reason}</div>

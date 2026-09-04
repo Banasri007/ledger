@@ -4,9 +4,11 @@
    The scrim is the important one. The old backdrop sat under a flat
    rgba(5,5,5,.9) vignette, which is why the finance visuals behind it were
    invisible. Here the scrim is a radial gradient centred on the pointer:
-   ~18% black where you are pointing, ~92% at the edges. The background is
-   genuinely bright, but only where you are looking - so it never fights the
-   copy, and sweeping the mouse feels like moving a torch over a terminal. */
+   ~6% black where you are pointing, ~66% at the edges. Every layer stays
+   legible at rest - you should not have to hunt for the animation with the
+   mouse - and sweeping the pointer lifts it further, like moving a torch over
+   a terminal. The text stays readable because each section carries its own
+   feathered copy scrim (see Snap in Landing.jsx). */
 
 import { T } from "../theme.js";
 
@@ -40,8 +42,8 @@ const FX = `
 /* ---- the torch ---- */
 .fx-spot {
   position:absolute; inset:0; pointer-events:none;
-  background: radial-gradient(circle 470px at calc(var(--mx) * 1px) calc(var(--my) * 1px),
-    rgba(5,5,5,.16) 0%, rgba(5,5,5,.58) 40%, rgba(5,5,5,.86) 74%, rgba(5,5,5,.95) 100%);
+  background: radial-gradient(circle 640px at calc(var(--mx) * 1px) calc(var(--my) * 1px),
+    rgba(5,5,5,.06) 0%, rgba(5,5,5,.30) 38%, rgba(5,5,5,.52) 70%, rgba(5,5,5,.66) 100%);
 }
 .fx-spot-console {
   position:fixed; inset:0; pointer-events:none; z-index:0;
@@ -53,7 +55,7 @@ const FX = `
 .fx-dots, .fx-dots-base { position:absolute; inset:0; pointer-events:none;
   background-image: radial-gradient(circle, ${T.gold} 1.15px, transparent 1.15px);
   background-size: 30px 30px; }
-.fx-dots-base { opacity:.10 }
+.fx-dots-base { opacity:.16 }
 .fx-dots {
   opacity:.85;
   -webkit-mask-image: radial-gradient(circle 250px at calc(var(--mx) * 1px) calc(var(--my) * 1px), #000 0%, rgba(0,0,0,.4) 52%, transparent 76%);
@@ -149,7 +151,7 @@ function Crosshair({ label }) {
           className="fx-cross-tag"
           style={{
             fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 9,
+            fontSize: 11,
             letterSpacing: "0.16em",
             color: "rgba(212,175,55,.75)",
           }}

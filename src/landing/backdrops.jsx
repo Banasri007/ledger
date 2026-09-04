@@ -138,7 +138,7 @@ function BackFlow() {
               y={404}
               textAnchor="middle"
               fontFamily={MONO}
-              fontSize={9}
+              fontSize={11}
               letterSpacing="2"
               fill={col[i]}
               opacity={0.65}
@@ -211,7 +211,7 @@ function BackScatter() {
           left: 0,
           transform: "translate3d(calc(var(--mx) * 1px - 96px), 0, 0)",
           fontFamily: MONO,
-          fontSize: 9.5,
+          fontSize: 11.6,
           letterSpacing: "0.18em",
           color: T.bad,
           opacity: 0.8,
@@ -226,7 +226,7 @@ function BackScatter() {
           left: 0,
           transform: "translate3d(calc(var(--mx) * 1px + 14px), 0, 0)",
           fontFamily: MONO,
-          fontSize: 9.5,
+          fontSize: 11.6,
           letterSpacing: "0.18em",
           color: T.gold,
           opacity: 0.85,
@@ -268,7 +268,7 @@ function BackCurve() {
         ))}
         <path d={area} fill="url(#cashFill)" />
         <line x1={0} y1={300} x2={800} y2={300} stroke={T.bad} strokeWidth={1.2} strokeDasharray="7 5" opacity={0.75} />
-        <text x={10} y={294} fontFamily={MONO} fontSize={9} letterSpacing="2" fill={T.bad} opacity={0.85}>
+        <text x={10} y={294} fontFamily={MONO} fontSize={11} letterSpacing="2" fill={T.bad} opacity={0.85}>
           FLOOR
         </text>
         <path
@@ -301,7 +301,7 @@ function BackCurve() {
 
 /* 5 - the residual: the book closing itself, edge by edge */
 function BackResolve() {
-  const rows = 28;
+  const rows = 29;
   return (
     <svg viewBox="0 0 800 420" preserveAspectRatio={slice} style={SVG}>
       <g className="fx-par-1">
@@ -311,7 +311,7 @@ function BackResolve() {
           return (
             <path
               key={i}
-              d={`M 170 ${y1} C 400 ${y1}, 400 ${y2}, 630 ${y2}`}
+              d={`M 44 ${y1} C 400 ${y1}, 400 ${y2}, 756 ${y2}`}
               fill="none"
               stroke="#6EE7A8"
               strokeWidth={1.1}
@@ -323,8 +323,8 @@ function BackResolve() {
         })}
         {Array.from({ length: rows }, (_, i) => (
           <g key={"n" + i}>
-            <circle cx={170} cy={22 + i * 14} r={2.4} fill="rgba(242,242,242,.55)" />
-            <circle cx={630} cy={22 + i * 14} r={2.4} fill="rgba(242,242,242,.55)" />
+            <circle cx={44} cy={22 + i * 14} r={2.6} fill="rgba(242,242,242,.6)" />
+            <circle cx={756} cy={22 + i * 14} r={2.6} fill="rgba(242,242,242,.6)" />
           </g>
         ))}
       </g>

@@ -19,8 +19,11 @@ const T = {
   bad: "#E5484D",
   ok: "#4FD1C5",
 };
-const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
+/* Type stack borrowed from The Turing Circle itself, which this design
+   mimics: Outfit for UI, Space Mono for anything tabular or machine-ish.
+   Both fall back to system faces if the webfont never lands. */
+const MONO = "'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 const SANS =
-  "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+  "Outfit, Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 export { T, MONO, SANS };

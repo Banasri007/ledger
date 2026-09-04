@@ -110,7 +110,7 @@ function Landing({ onLaunch }) {
         }}
       >
         <div style={{ ...SHELL, display: "flex", alignItems: "center", height: 64, gap: 26 }}>
-          <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: "-0.03em" }}>
+          <span style={{ fontWeight: 800, fontSize: 20.5, letterSpacing: "-0.03em" }}>
             Ledger
             <span
               style={{
@@ -129,7 +129,7 @@ function Landing({ onLaunch }) {
                 key={label}
                 style={{
                   fontFamily: MONO,
-                  fontSize: 10,
+                  fontSize: 12.2,
                   letterSpacing: "0.12em",
                   color: active === i + 2 ? T.gold : T.dim,
                   padding: "6px 8px",
@@ -152,7 +152,7 @@ function Landing({ onLaunch }) {
           <Eyebrow>RECONCILIATION · FORECASTING · EXCEPTIONS</Eyebrow>
           <h1
             style={{
-              fontSize: "clamp(48px, 8.4vw, 116px)",
+              fontSize: "clamp(52px, 8.8vw, 128px)",
               fontWeight: 800,
               letterSpacing: "-0.055em",
               lineHeight: 0.95,
@@ -173,7 +173,7 @@ function Landing({ onLaunch }) {
           </h1>
           <p
             style={{
-              fontSize: "clamp(16px, 1.35vw, 20px)",
+              fontSize: "clamp(18px, 1.5vw, 23px)",
               lineHeight: 1.7,
               color: T.muted,
               maxWidth: 660,
@@ -185,14 +185,14 @@ function Landing({ onLaunch }) {
             resolve — with the reason.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 42 }}>
-            <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 30px", fontSize: 12 }}>
+            <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 30px", fontSize: 13.8 }}>
               Open the console
             </button>
           </div>
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 10,
+              fontSize: 12.2,
               color: T.dim,
               marginTop: 30,
               letterSpacing: "0.08em",
@@ -256,14 +256,14 @@ function Landing({ onLaunch }) {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 26, height: 2, background: color }} />
-                <span style={{ fontFamily: MONO, fontSize: 10, color: T.dim, letterSpacing: "0.14em" }}>
+                <span style={{ fontFamily: MONO, fontSize: 12.2, color: T.dim, letterSpacing: "0.14em" }}>
                   TIER {n}
                 </span>
               </div>
-              <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.03em", marginTop: 16, color }}>
+              <div style={{ fontSize: 28.1, fontWeight: 800, letterSpacing: "-0.03em", marginTop: 16, color }}>
                 {name}
               </div>
-              <p style={{ fontSize: 14.5, lineHeight: 1.68, color: T.muted, marginTop: 12 }}>{copy}</p>
+              <p style={{ fontSize: 16.7, lineHeight: 1.68, color: T.muted, marginTop: 12 }}>{copy}</p>
             </GlowCard>
           ))}
         </div>
@@ -302,13 +302,13 @@ function Landing({ onLaunch }) {
                 backdropFilter: "blur(7px)",
               }}
             >
-              <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.16em", color: T.dim }}>
+              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.16em", color: T.dim }}>
                 {label}
               </div>
-              <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.03em", margin: "10px 0" }}>
+              <div style={{ fontSize: 23.8, fontWeight: 800, letterSpacing: "-0.03em", margin: "10px 0" }}>
                 {value}
               </div>
-              <p style={{ fontSize: 13.5, lineHeight: 1.65, color: T.muted, margin: 0 }}>{copy}</p>
+              <p style={{ fontSize: 15.5, lineHeight: 1.65, color: T.muted, margin: 0 }}>{copy}</p>
             </GlowCard>
           ))}
         </div>
@@ -357,7 +357,7 @@ function Landing({ onLaunch }) {
           <H2>Run a batch yourself.</H2>
           <p
             style={{
-              fontSize: 17,
+              fontSize: 19.5,
               lineHeight: 1.7,
               color: T.muted,
               maxWidth: 500,
@@ -367,13 +367,13 @@ function Landing({ onLaunch }) {
             Set the noise, reconcile, then drag the threshold until the precision number stops being
             comfortable.
           </p>
-          <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 32px", fontSize: 12 }}>
+          <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 32px", fontSize: 13.8 }}>
             Open the console
           </button>
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 10,
+              fontSize: 12.2,
               color: T.dim,
               marginTop: 64,
               letterSpacing: "0.1em",

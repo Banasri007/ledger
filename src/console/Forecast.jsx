@@ -37,7 +37,7 @@ function Forecast({ batch, matches, threshold }) {
 
   if (!matches.length)
     return (
-      <div style={{ padding: 40, fontFamily: MONO, fontSize: 12, color: T.dim }}>
+      <div style={{ padding: 40, fontFamily: MONO, fontSize: 13.8, color: T.dim }}>
         Run a reconciliation first — the forecast learns its payment lag from cleared matches.
       </div>
     );
@@ -80,7 +80,7 @@ function Forecast({ batch, matches, threshold }) {
           <div style={{ flex: 1, minWidth: 320 }}>
             {f.breach ? (
               <>
-                <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: "-0.03em" }}>
+                <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: "-0.03em" }}>
                   You break the floor on{" "}
                   <span style={{ color: T.bad }}>
                     {new Date(f.breach.t).toLocaleDateString("en-US", {
@@ -89,17 +89,17 @@ function Forecast({ batch, matches, threshold }) {
                     })}
                   </span>
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: 11.5, color: T.muted, marginTop: 6 }}>
+                <div style={{ fontFamily: MONO, fontSize: 14, color: T.muted, marginTop: 6 }}>
                   Trough {fmt(f.trough.bal)} against a {fmt(f.floor)} floor · payroll{" "}
                   {fmt(f.payroll)} on the 15th
                 </div>
               </>
             ) : (
               <>
-                <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: "-0.03em" }}>
+                <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: "-0.03em" }}>
                   Cash holds through the horizon
                 </div>
-                <div style={{ fontFamily: MONO, fontSize: 11.5, color: T.muted, marginTop: 6 }}>
+                <div style={{ fontFamily: MONO, fontSize: 14, color: T.muted, marginTop: 6 }}>
                   Trough {fmt(f.trough.bal)} stays above the {fmt(f.floor)} floor · payroll{" "}
                   {fmt(f.payroll)} on the 15th
                 </div>
@@ -111,7 +111,7 @@ function Forecast({ batch, matches, threshold }) {
             <div
               style={{
                 fontFamily: MONO,
-                fontSize: 10,
+                fontSize: 12.2,
                 letterSpacing: "0.12em",
                 color: T.muted,
               }}
@@ -133,7 +133,7 @@ function Forecast({ batch, matches, threshold }) {
             <div
               style={{
                 fontFamily: MONO,
-                fontSize: 9.5,
+                fontSize: 11.6,
                 color: f.breach ? T.bad : T.dim,
               }}
             >
@@ -159,7 +159,7 @@ function Forecast({ batch, matches, threshold }) {
             strokeDasharray="5 4"
             opacity={0.7}
           />
-          <text x={padL - 8} y={y(f.floor) + 3} textAnchor="end" fontFamily={MONO} fontSize={9} fill={T.bad}>
+          <text x={padL - 8} y={y(f.floor) + 3} textAnchor="end" fontFamily={MONO} fontSize={11} fill={T.bad}>
             FLOOR
           </text>
 
@@ -216,7 +216,7 @@ function Forecast({ batch, matches, threshold }) {
                 y={H - 22}
                 textAnchor="middle"
                 fontFamily={MONO}
-                fontSize={9}
+                fontSize={11}
                 fill={T.dim}
               >
                 {new Date(d.t).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -230,7 +230,7 @@ function Forecast({ batch, matches, threshold }) {
               y={y(v) + 3}
               textAnchor="end"
               fontFamily={MONO}
-              fontSize={9}
+              fontSize={11}
               fill={T.dim}
             >
               {"$" + Math.round(v / 1000) + "k"}
@@ -240,8 +240,8 @@ function Forecast({ batch, matches, threshold }) {
       </div>
 
       {/* drivers */}
-      <div style={{ ...PANEL, width: 300, flexShrink: 0, padding: 22 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", color: T.dim }}>
+      <div style={{ ...PANEL, width: 352, flexShrink: 0, padding: 24 }}>
+        <div style={{ fontFamily: MONO, fontSize: 12.2, letterSpacing: "0.14em", color: T.dim }}>
           {f.breach ? "COLLECTIONS THAT FIX IT" : "LARGEST OPEN POSITIONS"}
         </div>
 
@@ -249,7 +249,7 @@ function Forecast({ batch, matches, threshold }) {
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 10.5,
+              fontSize: 12.8,
               color: T.muted,
               marginTop: 10,
               lineHeight: 1.6,
@@ -286,11 +286,11 @@ function Forecast({ batch, matches, threshold }) {
                   color: T.text,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
                   <span>{d.inv.customer}</span>
                   <span>{fmt(d.inv.amount)}</span>
                 </div>
-                <div style={{ fontSize: 10, color: T.dim, marginTop: 4 }}>
+                <div style={{ fontSize: 12.2, color: T.dim, marginTop: 4 }}>
                   {d.inv.ref} · expected{" "}
                   {new Date(d.inv.expected).toLocaleDateString("en-US", {
                     month: "short",
@@ -299,7 +299,7 @@ function Forecast({ batch, matches, threshold }) {
                   {d.inv.learned ? ` · lag ${Math.round(d.inv.lag)}d` : " · lag est."}
                 </div>
                 {d.lift > 0 && (
-                  <div style={{ fontSize: 10.5, color: d.clears ? T.ok : T.gold, marginTop: 6 }}>
+                  <div style={{ fontSize: 12.8, color: d.clears ? T.ok : T.gold, marginTop: 6 }}>
                     {d.clears ? "Clears the breach" : "Lifts trough"} +{fmt(d.lift)}
                   </div>
                 )}
@@ -314,7 +314,7 @@ function Forecast({ batch, matches, threshold }) {
             paddingTop: 16,
             borderTop: `1px solid ${T.line}`,
             fontFamily: MONO,
-            fontSize: 10,
+            fontSize: 12.2,
             color: T.dim,
             lineHeight: 1.7,
           }}

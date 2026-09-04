@@ -14,12 +14,12 @@ function Exceptions({ items, onResolve, resolved, rules }) {
   return (
     <div style={{ display: "flex", gap: 14, marginTop: 14, alignItems: "flex-start" }}>
       <div style={{ ...PANEL, flex: 1, minWidth: 0, padding: "22px 22px 26px" }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", color: T.dim }}>
+        <div style={{ fontFamily: MONO, fontSize: 12.2, letterSpacing: "0.14em", color: T.dim }}>
           RANKED BY VALUE AT RISK
         </div>
         <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 1 }}>
           {items.length === 0 && (
-            <div style={{ color: T.dim, fontFamily: MONO, fontSize: 12 }}>
+            <div style={{ color: T.dim, fontFamily: MONO, fontSize: 13.8 }}>
               Nothing yet. Run a reconciliation.
             </div>
           )}
@@ -37,7 +37,7 @@ function Exceptions({ items, onResolve, resolved, rules }) {
                   borderRadius: 6,
                   alignItems: "center",
                   fontFamily: MONO,
-                  fontSize: 11,
+                  fontSize: 13.4,
                 }}
               >
                 <span style={{ color: e.kind === "No candidate" ? T.bad : T.gold }}>{e.kind}</span>
@@ -49,7 +49,7 @@ function Exceptions({ items, onResolve, resolved, rules }) {
                 </span>
                 <span style={{ color: T.text, textAlign: "right" }}>{fmt(e.amount || 0)}</span>
                 {isDone ? (
-                  <span style={{ color: "#6EE7A8", fontSize: 10, textAlign: "center" }}>
+                  <span style={{ color: "#6EE7A8", fontSize: 12.2, textAlign: "center" }}>
                     resolved
                   </span>
                 ) : (
@@ -57,7 +57,7 @@ function Exceptions({ items, onResolve, resolved, rules }) {
                     onClick={() => onResolve(e.id)}
                     style={{
                       fontFamily: MONO,
-                      fontSize: 10,
+                      fontSize: 12.2,
                       letterSpacing: "0.08em",
                       padding: "6px 10px",
                       borderRadius: 6,
@@ -77,14 +77,14 @@ function Exceptions({ items, onResolve, resolved, rules }) {
       </div>
 
       <div style={{ ...PANEL, width: 292, flexShrink: 0, padding: 22 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", color: T.dim }}>
+        <div style={{ fontFamily: MONO, fontSize: 12.2, letterSpacing: "0.14em", color: T.dim }}>
           RULES LEARNED
         </div>
         {!rules.length && (
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 10.5,
+              fontSize: 12.8,
               color: T.dim,
               marginTop: 14,
               lineHeight: 1.7,
@@ -106,12 +106,12 @@ function Exceptions({ items, onResolve, resolved, rules }) {
                 borderRadius: 8,
                 padding: "10px 12px",
                 fontFamily: MONO,
-                fontSize: 10.5,
+                fontSize: 12.8,
                 color: T.text,
                 lineHeight: 1.6,
               }}
             >
-              <div style={{ color: "#6EE7A8", fontSize: 9, letterSpacing: "0.1em" }}>
+              <div style={{ color: "#6EE7A8", fontSize: 11, letterSpacing: "0.1em" }}>
                 {r.type.toUpperCase()}
               </div>
               {r.label}

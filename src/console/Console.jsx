@@ -18,7 +18,7 @@ import { mineRules, scoreMatch, tierExact, tierFuzzy, tierLLM, tierLearned } fro
 import { pct } from "../lib/format.js";
 import { MONO, SANS, T } from "../theme.js";
 import { Control, Metric } from "../ui/primitives.jsx";
-import { DIFF_HINT, SHELL, btn } from "../ui/styles.js";
+import { DIFF_HINT, SHELL_WIDE, btn } from "../ui/styles.js";
 import { usePointerVars } from "../lib/motion.js";
 import { GlobalFX } from "../ui/effects.jsx";
 import { GlowCard } from "../ui/primitives.jsx";
@@ -33,7 +33,7 @@ function Tape({ items }) {
       <div style={{ display: "inline-flex", gap: 30, padding: "7px 0", willChange: "transform",
         animation: "tapeL 42s linear infinite" }}>
         {row.map(([k, v, c], i) => (
-          <span key={i} style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.14em",
+          <span key={i} style={{ fontFamily: MONO, fontSize: 11.6, letterSpacing: "0.14em",
             display: "inline-flex", gap: 8 }}>
             <span style={{ color: T.dim }}>{k}</span>
             <span style={{ color: c || T.muted }}>{v}</span>
@@ -198,7 +198,7 @@ function Console({ onBack }) {
           backdropFilter: "blur(10px)",
         }}
       >
-        <div style={{ ...SHELL, display: "flex", alignItems: "center", gap: 22, height: 60 }}>
+        <div style={{ ...SHELL_WIDE, display: "flex", alignItems: "center", gap: 22, height: 60 }}>
           <button
             onClick={onBack}
             style={{
@@ -207,7 +207,7 @@ function Console({ onBack }) {
               cursor: "pointer",
               padding: 0,
               fontWeight: 800,
-              fontSize: 18,
+              fontSize: 19.4,
               letterSpacing: "-0.03em",
               color: T.text,
               fontFamily: SANS,
@@ -227,7 +227,7 @@ function Console({ onBack }) {
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 9.5,
+              fontSize: 11.6,
               color: T.dim,
               letterSpacing: "0.16em",
               paddingTop: 2,
@@ -246,7 +246,7 @@ function Console({ onBack }) {
               border: `1px solid ${running ? "rgba(212,175,55,.4)" : T.line}`,
               background: running ? "rgba(212,175,55,.08)" : "transparent",
               fontFamily: MONO,
-              fontSize: 9,
+              fontSize: 11,
               letterSpacing: "0.16em",
               color: running ? T.gold : T.dim,
               transition: "all .35s",
@@ -269,7 +269,7 @@ function Console({ onBack }) {
                   borderRadius: 7,
                   cursor: "pointer",
                   fontFamily: MONO,
-                  fontSize: 10.5,
+                  fontSize: 12.8,
                   letterSpacing: "0.09em",
                   padding: "8px 14px",
                   color: view === v ? T.gold : T.dim,
@@ -300,7 +300,7 @@ function Console({ onBack }) {
         ]}
       />
 
-      <div style={SHELL}>
+      <div style={SHELL_WIDE}>
         {/* control bar */}
         <GlowCard
           style={{
@@ -414,13 +414,13 @@ function Console({ onBack }) {
               border: `1px solid rgba(110,231,168,.28)`,
               background: "rgba(110,231,168,.06)",
               fontFamily: MONO,
-              fontSize: 12,
+              fontSize: 13.8,
             }}
           >
-            <span style={{ color: "#6EE7A8", letterSpacing: "0.14em", fontSize: 9.5 }}>LEARNED</span>
+            <span style={{ color: "#6EE7A8", letterSpacing: "0.14em", fontSize: 11.6 }}>LEARNED</span>
             <span style={{ color: T.muted }}>
               Run {runs.length - 1} {pct(runs[runs.length - 2].rate)} → Run {runs.length}{" "}
-              <span style={{ color: T.text, fontWeight: 700, fontSize: 14 }}>
+              <span style={{ color: T.text, fontWeight: 700, fontSize: 16.1 }}>
                 {pct(runs[runs.length - 1].rate)}
               </span>
             </span>

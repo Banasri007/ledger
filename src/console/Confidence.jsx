@@ -21,7 +21,7 @@ function Confidence({ matches, threshold, truth }) {
           const x = 40 + ((t - 0.4) / 0.6) * (W - 80);
           return (
             <g key={t}>
-              <text x={x} y={H - 22} fill={T.dim} fontFamily={MONO} fontSize={9} textAnchor="middle">
+              <text x={x} y={H - 22} fill={T.dim} fontFamily={MONO} fontSize={11} textAnchor="middle">
                 {t.toFixed(2)}
               </text>
             </g>
@@ -52,7 +52,7 @@ function Confidence({ matches, threshold, truth }) {
           );
         })}
       </svg>
-      <div style={{ fontFamily: MONO, fontSize: 11, color: T.muted, marginTop: 10 }}>
+      <div style={{ fontFamily: MONO, fontSize: 13.4, color: T.muted, marginTop: 10 }}>
         Each dot is one proposed match. Red is wrong. Faded sits below your threshold and gets
         escalated instead of cleared. Drag the auto-clear slider and watch the trade.
       </div>

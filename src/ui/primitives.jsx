@@ -24,7 +24,7 @@ function Control({ label, hint, children }) {
       <div
         style={{
           fontFamily: MONO,
-          fontSize: 10,
+          fontSize: 12.2,
           letterSpacing: "0.12em",
           color: T.muted,
         }}
@@ -32,7 +32,7 @@ function Control({ label, hint, children }) {
         {label}
       </div>
       {children}
-      <div style={{ fontFamily: MONO, fontSize: 9.5, color: T.dim }}>{hint}</div>
+      <div style={{ fontFamily: MONO, fontSize: 11.6, color: T.dim }}>{hint}</div>
     </div>
   );
 }
@@ -92,7 +92,7 @@ function Metric({ label, value, num, decimals = 0, suffix = "", sub, tone, big, 
         <div
           style={{
             fontFamily: MONO,
-            fontSize: 9,
+            fontSize: 11,
             letterSpacing: "0.18em",
             color: T.dim,
           }}
@@ -103,7 +103,7 @@ function Metric({ label, value, num, decimals = 0, suffix = "", sub, tone, big, 
       </div>
       <div
         style={{
-          fontSize: big ? 46 : 31,
+          fontSize: big ? 58 : 40,
           fontWeight: 800,
           letterSpacing: "-0.045em",
           marginTop: 10,
@@ -122,7 +122,7 @@ function Metric({ label, value, num, decimals = 0, suffix = "", sub, tone, big, 
       >
         {shown}
       </div>
-      <div style={{ fontFamily: MONO, fontSize: 9.5, color: T.muted, marginTop: 8 }}>{sub}</div>
+      <div style={{ fontFamily: MONO, fontSize: 11.6, color: T.muted, marginTop: 8 }}>{sub}</div>
     </GlowCard>
   );
 }

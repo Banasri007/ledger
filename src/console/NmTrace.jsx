@@ -36,10 +36,10 @@ function FocusFan({ m, bank, ledger, step }) {
               <animateMotion dur="1.5s" repeatCount="indefinite" path={d} />
             </circle>
             <circle cx={xB} cy={y2} r={4} fill={T.gold} stroke={T.goldHi} strokeWidth={1.1} />
-            <text x={xB + 13} y={y2 + 3.6} fontFamily={MONO} fontSize={10} fill={T.text}>
+            <text x={xB + 13} y={y2 + 3.6} fontFamily={MONO} fontSize={12.2} fill={T.text}>
               {l.ref}
             </text>
-            <text x={xB + 100} y={y2 + 3.6} fontFamily={MONO} fontSize={10} fill={T.muted}>
+            <text x={xB + 100} y={y2 + 3.6} fontFamily={MONO} fontSize={12.2} fill={T.muted}>
               {fmt(l.amount)}
             </text>
           </g>
@@ -51,7 +51,7 @@ function FocusFan({ m, bank, ledger, step }) {
         y={yMid - 4}
         textAnchor="end"
         fontFamily={MONO}
-        fontSize={9.5}
+        fontSize={11.6}
         fill={T.muted}
       >
         {b.counterparty}
@@ -61,7 +61,7 @@ function FocusFan({ m, bank, ledger, step }) {
         y={yMid + 12}
         textAnchor="end"
         fontFamily={MONO}
-        fontSize={13}
+        fontSize={14.9}
         fill={T.gold}
       >
         {fmt(b.amount)}
@@ -83,16 +83,16 @@ function SubsetSum({ m, bank, ledger, step }) {
 
   return (
     <div style={{ lineHeight: 1.7 }}>
-      <div style={{ fontSize: 9.5, letterSpacing: "0.16em", color: meta.color }}>
+      <div style={{ fontSize: 11.6, letterSpacing: "0.16em", color: meta.color }}>
         SUBSET SUM &middot; TIER {m.tier}
       </div>
-      <div style={{ color: T.text, fontSize: 13, fontWeight: 600, marginTop: 12 }}>
+      <div style={{ color: T.text, fontSize: 14.9, fontWeight: 600, marginTop: 12 }}>
         {m.bankId} &middot; one wire
       </div>
       <div style={{ color: T.dim }}>{b?.counterparty}</div>
       <div
         style={{
-          fontSize: 26,
+          fontSize: 28.1,
           fontWeight: 700,
           color: T.gold,
           letterSpacing: "-0.02em",
@@ -101,7 +101,7 @@ function SubsetSum({ m, bank, ledger, step }) {
       >
         {b ? fmt(b.amount) : "—"}
       </div>
-      <div style={{ fontSize: 9, letterSpacing: "0.16em", color: T.dim }}>TARGET</div>
+      <div style={{ fontSize: 11, letterSpacing: "0.16em", color: T.dim }}>TARGET</div>
 
       <div style={{ height: 1, background: T.line, margin: "16px 0 12px" }} />
 
@@ -124,7 +124,7 @@ function SubsetSum({ m, bank, ledger, step }) {
 
       <div style={{ ...row, color: T.muted }}>
         <span>subtotal</span>
-        <span style={{ color: T.text, fontWeight: 700, fontSize: 13.5 }}>{fmt(running)}</span>
+        <span style={{ color: T.text, fontWeight: 700, fontSize: 15.5 }}>{fmt(running)}</span>
       </div>
       <div
         style={{
@@ -144,7 +144,7 @@ function SubsetSum({ m, bank, ledger, step }) {
           opacity: settled ? 1 : 0,
           transition: "opacity .35s ease",
           color: T.ok,
-          fontSize: 11.5,
+          fontSize: 14,
         }}
       >
         ✓ reconciles within the $55 tolerance
