@@ -9,8 +9,21 @@
 import { useState, useRef, useEffect } from "react";
 import { Backdrop } from "./backdrops.jsx";
 import { Body, Eyebrow, H2 } from "./typography.jsx";
+import { usePointerVars } from "../lib/motion.js";
 import { MONO, SANS, T } from "../theme.js";
+import { Crosshair, Cursor, GlobalFX } from "../ui/effects.jsx";
+import { GlowCard } from "../ui/primitives.jsx";
 import { PANEL, SHELL, btn } from "../ui/styles.js";
+
+const SECTION_TAG = [
+  "LEDGER",
+  "THE PROBLEM",
+  "HOW IT WORKS",
+  "MEASUREMENT",
+  "CASH POSITION",
+  "THE RESIDUAL",
+  "RUN IT",
+];
 
 /* ---------- full-height snap section ---------- */
 function Snap({ index, setActive, root, children, align = "center" }) {
@@ -38,7 +51,24 @@ function Snap({ index, setActive, root, children, align = "center" }) {
         zIndex: 1,
       }}
     >
-      <div style={{ ...SHELL, padding: "96px 28px 72px", width: "100%" }}>{children}</div>
+      <div style={{ ...SHELL, padding: "96px 28px 72px", width: "100%", position: "relative" }}>
+        {/* copy scrim: the backdrops run bright now, so the text column gets a
+            feathered ground of its own. Bright at the edges where the animation
+            lives, calm under the words. */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: "24px -60px",
+            pointerEvents: "none",
+            background:
+              align === "center"
+                ? "radial-gradient(ellipse 74% 60% at 50% 50%, rgba(5,5,5,.92) 32%, rgba(5,5,5,.62) 62%, transparent 100%)"
+                : "radial-gradient(ellipse 66% 64% at 24% 50%, rgba(5,5,5,.93) 28%, rgba(5,5,5,.64) 58%, transparent 100%)",
+          }}
+        />
+        <div style={{ position: "relative" }}>{children}</div>
+      </div>
     </section>
   );
 }
@@ -46,6 +76,7 @@ function Snap({ index, setActive, root, children, align = "center" }) {
 function Landing({ onLaunch }) {
   const [active, setActive] = useState(0);
   const root = useRef(null);
+  usePointerVars();
 
   return (
     <div
@@ -58,19 +89,14 @@ function Landing({ onLaunch }) {
         color: T.text,
         fontFamily: SANS,
         position: "relative",
+        cursor: "none",
       }}
     >
-      <style>{`
-        @keyframes edgeIn { from { stroke-dashoffset:1; opacity:0 } to { stroke-dashoffset:0; opacity:1 } }
-        @keyframes pulse { 0%,100%{opacity:.2} 50%{opacity:.7} }
-        @keyframes drift { from { transform: translateY(0) } to { transform: translateY(-50%) } }
-        @keyframes sweep { 0%,100% { transform: translateX(240px) } 50% { transform: translateX(620px) } }
-        @keyframes draw { 0% { stroke-dashoffset:2400 } 55%,100% { stroke-dashoffset:0 } }
-        @keyframes resolve { 0% { opacity:0; stroke-dashoffset:600 } 25% { opacity:.55 } 70% { opacity:.55; stroke-dashoffset:0 } 100% { opacity:0; stroke-dashoffset:0 } }
-        @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important } }
-      `}</style>
+      <GlobalFX />
 
       <Backdrop active={active} />
+      <Crosshair label={SECTION_TAG[active] || ""} />
+      <Cursor />
 
       {/* nav */}
       <div
@@ -113,7 +139,7 @@ function Landing({ onLaunch }) {
                 {label.toUpperCase()}
               </div>
             ))}
-            <button onClick={onLaunch} style={{ ...btn(true), padding: "10px 18px", marginLeft: 12 }}>
+            <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "10px 18px", marginLeft: 12 }}>
               Open the console
             </button>
           </div>
@@ -133,7 +159,7 @@ function Landing({ onLaunch }) {
               margin: 0,
             }}
           >
-            Close the books.
+            <span className="fx-glow">Close the books.</span>
             <br />
             <span
               style={{
@@ -159,7 +185,7 @@ function Landing({ onLaunch }) {
             resolve — with the reason.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 42 }}>
-            <button onClick={onLaunch} style={{ ...btn(true), padding: "15px 30px", fontSize: 12 }}>
+            <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 30px", fontSize: 12 }}>
               Open the console
             </button>
           </div>
@@ -218,7 +244,16 @@ function Landing({ onLaunch }) {
             ["2", "Fuzzy", T.fuzzy, "Tolerance on amount and date, similarity on counterparty, plus a bounded subset-sum search for one wire covering several invoices."],
             ["3", "Reasoned", T.llm, "Only the residual. Ambiguous cases where two candidates sit inside tolerance and something has to weigh the context."],
           ].map(([n, name, color, copy]) => (
-            <div key={n} style={{ ...PANEL, padding: "26px 24px 28px", background: "rgba(14,14,14,.72)" }}>
+            <GlowCard
+              key={n}
+              className="fx-lift"
+              style={{
+                ...PANEL,
+                padding: "26px 24px 28px",
+                background: "rgba(14,14,14,.66)",
+                backdropFilter: "blur(7px)",
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 26, height: 2, background: color }} />
                 <span style={{ fontFamily: MONO, fontSize: 10, color: T.dim, letterSpacing: "0.14em" }}>
@@ -229,7 +264,7 @@ function Landing({ onLaunch }) {
                 {name}
               </div>
               <p style={{ fontSize: 14.5, lineHeight: 1.68, color: T.muted, marginTop: 12 }}>{copy}</p>
-            </div>
+            </GlowCard>
           ))}
         </div>
       </Snap>
@@ -257,7 +292,16 @@ function Landing({ onLaunch }) {
             ["PRECISION", "Reported apart", "How many cleared matches were right. The number that decides whether the rate means anything."],
             ["THRESHOLD", "Yours to set", "Drag the auto-clear line and watch coverage trade against error, live."],
           ].map(([label, value, copy]) => (
-            <div key={label} style={{ ...PANEL, padding: "22px 20px 24px", background: "rgba(14,14,14,.72)" }}>
+            <GlowCard
+              key={label}
+              className="fx-lift"
+              style={{
+                ...PANEL,
+                padding: "22px 20px 24px",
+                background: "rgba(14,14,14,.66)",
+                backdropFilter: "blur(7px)",
+              }}
+            >
               <div style={{ fontFamily: MONO, fontSize: 9, letterSpacing: "0.16em", color: T.dim }}>
                 {label}
               </div>
@@ -265,7 +309,7 @@ function Landing({ onLaunch }) {
                 {value}
               </div>
               <p style={{ fontSize: 13.5, lineHeight: 1.65, color: T.muted, margin: 0 }}>{copy}</p>
-            </div>
+            </GlowCard>
           ))}
         </div>
       </Snap>
@@ -323,7 +367,7 @@ function Landing({ onLaunch }) {
             Set the noise, reconcile, then drag the threshold until the precision number stops being
             comfortable.
           </p>
-          <button onClick={onLaunch} style={{ ...btn(true), padding: "15px 32px", fontSize: 12 }}>
+          <button onClick={onLaunch} className="fx-mag" style={{ ...btn(true), padding: "15px 32px", fontSize: 12 }}>
             Open the console
           </button>
           <div

@@ -19,8 +19,34 @@ import { pct } from "../lib/format.js";
 import { MONO, SANS, T } from "../theme.js";
 import { Control, Metric } from "../ui/primitives.jsx";
 import { DIFF_HINT, SHELL, btn } from "../ui/styles.js";
+import { usePointerVars } from "../lib/motion.js";
+import { GlobalFX } from "../ui/effects.jsx";
+import { GlowCard } from "../ui/primitives.jsx";
+
+/* A thin marquee of the run's own numbers under the header. It is the one
+   piece of chrome that says "this thing is live" while a pass is streaming. */
+function Tape({ items }) {
+  const row = items.concat(items);
+  return (
+    <div style={{ overflow: "hidden", whiteSpace: "nowrap", borderBottom: `1px solid ${T.line}`,
+      background: "rgba(10,10,10,.7)" }}>
+      <div style={{ display: "inline-flex", gap: 30, padding: "7px 0", willChange: "transform",
+        animation: "tapeL 42s linear infinite" }}>
+        {row.map(([k, v, c], i) => (
+          <span key={i} style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.14em",
+            display: "inline-flex", gap: 8 }}>
+            <span style={{ color: T.dim }}>{k}</span>
+            <span style={{ color: c || T.muted }}>{v}</span>
+            <span style={{ color: "rgba(212,175,55,.35)" }}>/</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function Console({ onBack }) {
+  usePointerVars();
   const [difficulty, setDifficulty] = useState(3);
   const [threshold, setThreshold] = useState(0.7);
   const [seed, setSeed] = useState(42);
@@ -153,18 +179,13 @@ function Console({ onBack }) {
         fontFamily: SANS,
         minHeight: "100vh",
         backgroundImage:
-          "linear-gradient(rgba(212,175,55,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.035) 1px, transparent 1px)",
+          "linear-gradient(rgba(212,175,55,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.055) 1px, transparent 1px)",
         backgroundSize: "56px 56px",
+        position: "relative",
       }}
     >
-      <style>{`
-        @keyframes edgeIn { from { stroke-dashoffset: 1; opacity:0 } to { stroke-dashoffset: 0; opacity:1 } }
-        @keyframes pulse { 0%,100% { opacity:.35 } 50% { opacity:1 } }
-        input[type=range]{ -webkit-appearance:none; height:2px; background:${T.line}; outline:none; border-radius:2px }
-        input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
-          background:${T.gold}; cursor:pointer; border:2px solid ${T.bg} }
-        @media (prefers-reduced-motion: reduce){ *{ animation:none !important } }
-      `}</style>
+      <GlobalFX />
+      <div className="fx-spot-console" />
 
       {/* header */}
       <div
@@ -210,9 +231,29 @@ function Console({ onBack }) {
               color: T.dim,
               letterSpacing: "0.16em",
               paddingTop: 2,
+              whiteSpace: "nowrap",
             }}
           >
             RECONCILIATION ENGINE
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "5px 11px",
+              borderRadius: 999,
+              border: `1px solid ${running ? "rgba(212,175,55,.4)" : T.line}`,
+              background: running ? "rgba(212,175,55,.08)" : "transparent",
+              fontFamily: MONO,
+              fontSize: 9,
+              letterSpacing: "0.16em",
+              color: running ? T.gold : T.dim,
+              transition: "all .35s",
+            }}
+          >
+            <span className="fx-live" style={{ background: running ? T.gold : T.ok }} />
+            {running ? `PASS ${Math.min(pass + 1, 4)}/4` : pass === 9 ? "SETTLED" : "IDLE"}
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: "flex", gap: 4 }}>
@@ -221,16 +262,19 @@ function Console({ onBack }) {
                 key={v}
                 onClick={() => setView(v)}
                 style={{
-                  background: view === v ? T.surfaceUp : "transparent",
-                  border: `1px solid ${view === v ? T.line : "transparent"}`,
+                  background: view === v ? "rgba(212,175,55,.1)" : "transparent",
+                  border: `1px solid ${view === v ? "rgba(212,175,55,.45)" : "transparent"}`,
+                  boxShadow: view === v ? "0 0 22px rgba(212,175,55,.18)" : "none",
+                  transition: "all .28s",
                   borderRadius: 7,
                   cursor: "pointer",
                   fontFamily: MONO,
                   fontSize: 10.5,
                   letterSpacing: "0.09em",
                   padding: "8px 14px",
-                  color: view === v ? T.text : T.dim,
+                  color: view === v ? T.gold : T.dim,
                 }}
+                className="fx-mag"
               >
                 {v.toUpperCase()}
               </button>
@@ -239,19 +283,37 @@ function Console({ onBack }) {
         </div>
       </div>
 
+      <Tape
+        items={[
+          ["SEED", seed],
+          ["NOISE", difficulty],
+          ["BANK", batch.bank.length],
+          ["LEDGER", batch.ledger.length],
+          ["TIER 1", matches.filter((m) => m.tier === 1).length, T.exact],
+          ["TIER 2", matches.filter((m) => m.tier === 2).length, T.fuzzy],
+          ["TIER 3", matches.filter((m) => m.tier === 3).length, T.llm],
+          ["LEARNED", matches.filter((m) => m.tier === 0).length, "#6EE7A8"],
+          ["RULES", rules.length, rules.length ? "#6EE7A8" : T.muted],
+          ["CLEARED", stats.cleared, T.gold],
+          ["WRONG", stats.falsePos, stats.falsePos ? T.bad : T.ok],
+          ["OPEN AR", stats.openInv.length],
+        ]}
+      />
+
       <div style={SHELL}>
         {/* control bar */}
-        <div
+        <GlowCard
           style={{
             display: "flex",
             alignItems: "flex-end",
             gap: 34,
             padding: "22px 24px",
             marginTop: 22,
-            background: T.surface,
+            background: "rgba(14,14,14,.82)",
             border: `1px solid ${T.line}`,
             borderRadius: 14,
             flexWrap: "wrap",
+            backdropFilter: "blur(6px)",
           }}
         >
           <Control label={`NOISE LEVEL ${difficulty}`} hint={DIFF_HINT[difficulty]}>
@@ -285,10 +347,15 @@ function Console({ onBack }) {
           <div style={{ flex: 1 }} />
 
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => setSeed((s) => s + 1)} disabled={running} style={btn(false)}>
+            <button
+              onClick={() => setSeed((s) => s + 1)}
+              disabled={running}
+              className="fx-mag"
+              style={btn(false)}
+            >
               New batch
             </button>
-            <button onClick={run} disabled={running} style={btn(true)}>
+            <button onClick={run} disabled={running} className="fx-mag" style={btn(true)}>
               {running
                 ? `Pass ${Math.min(pass + 1, 4)} of 4…`
                 : runs.length
@@ -296,7 +363,7 @@ function Console({ onBack }) {
                 : "Reconcile"}
             </button>
           </div>
-        </div>
+        </GlowCard>
 
         {/* metrics */}
         <div
@@ -309,24 +376,30 @@ function Console({ onBack }) {
         >
           <Metric
             label="MATCH RATE"
-            value={pct(stats.rate)}
+            num={stats.rate * 100}
+            decimals={1}
+            suffix="%"
             sub={`${stats.cleared} of ${batch.bank.length} wires cleared`}
+            series={runs.map((r) => r.rate)}
             big
           />
           <Metric
             label="PRECISION"
-            value={pct(stats.precision)}
+            num={stats.precision * 100}
+            decimals={1}
+            suffix="%"
             sub={`${stats.falsePos} false match${stats.falsePos === 1 ? "" : "es"}`}
+            series={runs.map((r) => r.precision)}
             tone={stats.falsePos > 0 ? T.bad : T.ok}
           />
-          <Metric label="ESCALATED" value={stats.escalated} sub="below threshold" />
+          <Metric label="ESCALATED" num={stats.escalated} sub="below threshold" />
           <Metric
             label="NO CANDIDATE"
-            value={stats.unresolvedBank.length}
+            num={stats.unresolvedBank.length}
             sub="unmatched wires"
             tone={T.bad}
           />
-          <Metric label="OPEN AR" value={stats.openInv.length} sub="invoices uncleared" />
+          <Metric label="OPEN AR" num={stats.openInv.length} sub="invoices uncleared" />
         </div>
 
         {runs.length >= 2 && (
