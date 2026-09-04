@@ -58,6 +58,7 @@ function Console({ onBack }) {
   const [rules, setRules] = useState([]);
   const [runs, setRuns] = useState([]);
   const [resolved, setResolved] = useState([]);
+  const [meter, setMeter] = useState(null);
 
   const batch = useMemo(
     () => generateBatch({ difficulty, nInvoices: 60, seed }),
@@ -70,6 +71,7 @@ function Console({ onBack }) {
     setRules([]);
     setRuns([]);
     setResolved([]);
+    setMeter(null);
   }, []);
   useEffect(reset, [difficulty, seed, reset]);
 
@@ -77,7 +79,7 @@ function Console({ onBack }) {
     setRunning(true);
     setMatches([]);
     const acc = [];
-    const cfg = { truth: batch.truth, seed, rules };
+    const cfg = { truth: batch.truth, seed, rules, onMeter: setMeter };
     const tiers = [tierLearned, tierExact, tierFuzzy, tierLLM];
 
     for (const [i, fn] of tiers.entries()) {
@@ -401,6 +403,70 @@ function Console({ onBack }) {
           />
           <Metric label="OPEN AR" num={stats.openInv.length} sub="invoices uncleared" />
         </div>
+
+        {meter && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 18,
+              flexWrap: "wrap",
+              padding: "13px 20px",
+              marginTop: 12,
+              borderRadius: 12,
+              border: `1px solid ${
+                meter.source === "live" ? "rgba(79,209,197,.32)" : T.line
+              }`,
+              background:
+                meter.source === "live" ? "rgba(79,209,197,.055)" : "rgba(14,14,14,.7)",
+              fontFamily: MONO,
+              fontSize: 12.5,
+            }}
+          >
+            <span
+              style={{
+                color: meter.source === "live" ? T.llm : T.dim,
+                letterSpacing: "0.14em",
+                fontSize: 10.5,
+              }}
+            >
+              TIER 3 · {meter.source === "live" ? "LIVE" : "STUB"}
+            </span>
+
+            {meter.source === "live" ? (
+              <>
+                <span style={{ color: T.muted }}>{meter.model}</span>
+                <span style={{ color: T.dim }}>
+                  saw <span style={{ color: T.text }}>{meter.wires}</span> of{" "}
+                  <span style={{ color: T.text }}>{batch.bank.length}</span> wires
+                </span>
+                <span style={{ color: T.dim }}>
+                  <span style={{ color: T.text }}>{(meter.ms / 1000).toFixed(1)}s</span>
+                </span>
+                <span style={{ color: T.dim }}>
+                  {meter.inputTokens.toLocaleString()} in /{" "}
+                  {meter.outputTokens.toLocaleString()} out
+                </span>
+                <span style={{ color: T.ok, fontWeight: 700 }}>
+                  ${meter.costUsd.toFixed(4)}
+                </span>
+                {meter.invented > 0 && (
+                  <span style={{ color: T.bad }}>
+                    {meter.invented} invented id{meter.invented === 1 ? "" : "s"} dropped
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ color: T.muted }}>
+                {meter.reason === "no_key"
+                  ? "No ANTHROPIC_API_KEY on the server — deterministic fallback in use."
+                  : meter.reason === "live_disabled"
+                  ? "Live tier disabled — deterministic fallback in use."
+                  : `Model unreachable (${meter.reason}) — deterministic fallback in use.`}
+              </span>
+            )}
+          </div>
+        )}
 
         {runs.length >= 2 && (
           <div

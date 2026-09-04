@@ -18,4 +18,11 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // api/ runs on Vercel's Node runtime, and vite.config.js runs on Node too;
+    // both need node globals (process, Buffer) rather than browser ones.
+    files: ['api/**/*.js', 'vite.config.js'],
+    languageOptions: { globals: { ...globals.node } },
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])

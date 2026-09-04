@@ -137,12 +137,71 @@ function subsetSum(items, target, tol, k) {
   return res;
 }
 
-/* --- TIER 3 STUB ---------------------------------------------
-   Deliberately imperfect: ~15% wrong so accuracy numbers stay
-   honest and the calibration curve has real shape. Replace the
-   body with a fetch() to the API; signature does not change.
-   ------------------------------------------------------------ */
+/* --- TIER 3 — REASONED -----------------------------------------------
+   Calls the real model through /api/reconcile, which holds the API key
+   server-side. Only the residual crosses the wire: the wires tiers 0-2 could
+   not clear, plus the invoices still open. The planted answer key never
+   leaves this file, so the model is genuinely being tested rather than being
+   handed the answer.
+
+   Falls back to the deterministic stub whenever the endpoint is unavailable -
+   no key configured, offline, provider error. A demo should not die because
+   the wifi did. cfg.onMeter receives the real cost and latency when the live
+   path runs, and cfg.live === false forces the stub.
+   -------------------------------------------------------------------- */
 async function tierLLM(bank, ledger, cfg) {
+  if (!bank.length) return [];
+
+  if (cfg?.live !== false) {
+    try {
+      const res = await fetch("/api/reconcile", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          wires: bank.map((b) => ({
+            id: b.id,
+            amount: b.amount,
+            counterparty: b.counterparty,
+            ref: b.ref,
+            date: dstrShort(b.date),
+          })),
+          invoices: ledger.map((l) => ({
+            id: l.id,
+            amount: l.amount,
+            customer: l.customer,
+            dueDate: dstrShort(l.dueDate),
+          })),
+          effort: cfg?.effort,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && Array.isArray(data.matches)) {
+        cfg?.onMeter?.({ ...data.meter, source: "live" });
+        return data.matches;
+      }
+      cfg?.onMeter?.({
+        source: "stub",
+        reason: data?.error || `http_${res.status}`,
+        detail: data?.detail || null,
+      });
+    } catch (e) {
+      cfg?.onMeter?.({ source: "stub", reason: "unreachable", detail: String(e?.message || e) });
+    }
+  } else {
+    cfg?.onMeter?.({ source: "stub", reason: "live_disabled" });
+  }
+
+  return tierLLMStub(bank, ledger, cfg);
+}
+
+const dstrShort = (t) => new Date(t).toISOString().slice(0, 10);
+
+/* --- the stub, kept as the fallback ----------------------------------
+   Deliberately imperfect: ~15% wrong, so when it stands in for the real
+   tier the accuracy numbers stay honest rather than flattering.
+   -------------------------------------------------------------------- */
+async function tierLLMStub(bank, ledger, cfg) {
   const { truth, seed } = cfg;
   const rnd = mulberry32(seed + 777);
   const openL = new Set(ledger.map((l) => l.id));
@@ -280,4 +339,4 @@ function scoreMatch(m, truth) {
   return a === b;
 }
 
-export { normRef, normName, nameScore, tierExact, tierFuzzy, subsetSum, tierLLM, digitsOf, tierLearned, mineRules, scoreMatch };
+export { normRef, normName, nameScore, tierExact, tierFuzzy, subsetSum, tierLLM, tierLLMStub, digitsOf, tierLearned, mineRules, scoreMatch };

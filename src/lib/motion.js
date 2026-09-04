@@ -88,7 +88,18 @@ function useCountUp(value, ms = 620) {
       if (t < 1) raf.current = requestAnimationFrame(step);
     };
     raf.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf.current);
+
+    /* rAF does not fire while the tab is hidden, so without this the number
+       freezes wherever the animation was interrupted - you come back to a
+       stale "0.0%" sitting next to "38 of 42 cleared". The timer still fires
+       (throttled) when hidden, so it guarantees we land on the real value
+       whether or not a single frame ever ran. */
+    const settle = setTimeout(() => setShown(b), ms + 80);
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      clearTimeout(settle);
+    };
   }, [value, ms, still]);
 
   /* keep the animation's starting point in sync so an interrupted count
