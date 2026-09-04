@@ -146,13 +146,17 @@ function Console({ onBack }) {
         acc.push(m);
         setMatches([...acc]);
         /* The per-match pause exists purely so you can watch the passes land.
-           Browsers clamp setTimeout in a hidden tab (and may freeze it), so
-           alt-tabbing mid-run used to stall the whole reconcile. Nobody is
-           watching an animation they cannot see - skip the delay when hidden. */
-        const beat = document.hidden ? 0 : i === 3 ? 90 : i === 2 ? 32 : 22;
-        await new Promise((r) => setTimeout(r, beat));
+           It has to be skipped outright when the tab is hidden, not merely set
+           to zero: Chrome clamps CHAINED timers to ~1s in a background tab
+           whatever delay you ask for, so a 60-record batch took a minute with
+           setTimeout(0). Yield on a microtask instead - no timer, no clamp. */
+        if (document.hidden) {
+          await Promise.resolve();
+        } else {
+          await new Promise((r) => setTimeout(r, i === 3 ? 90 : i === 2 ? 32 : 22));
+        }
       }
-      if (res.length) await new Promise((r) => setTimeout(r, document.hidden ? 0 : 320));
+      if (res.length && !document.hidden) await new Promise((r) => setTimeout(r, 320));
     }
     setPass(9);
     setRunning(false);
@@ -601,7 +605,10 @@ function Console({ onBack }) {
                   ? "No ANTHROPIC_API_KEY on the server — deterministic fallback in use."
                   : meter.reason === "live_disabled"
                   ? "Live tier disabled — deterministic fallback in use."
-                  : `Model unreachable (${meter.reason}) — deterministic fallback in use.`}
+                  : meter.reason === "unreachable"
+                  ? "Could not reach the server — deterministic fallback in use."
+                  : meter.message ||
+                    `The reasoning tier could not run (${meter.reason}) — deterministic fallback in use.`}
               </span>
             )}
           </div>

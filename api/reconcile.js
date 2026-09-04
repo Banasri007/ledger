@@ -87,8 +87,36 @@ export default async function handler(req, res) {
       meter: { ...meter, proposed: matches.length, kept: clean.length, invented, duplicated },
     });
   } catch (e) {
-    const code = e?.code || (e?.status ? `http_${e.status}` : "provider_error");
-    const status = e?.status === 401 || e?.status === 403 ? 502 : 502;
-    return bad(res, status, code, e?.message || String(e));
+    /* "http_400" tells nobody anything. The three failures that actually
+       happen in practice - no credit, bad key, rate limit - each need a
+       different action from whoever is standing in front of the demo, so
+       name them. Classify by status, then refine the 400 by message, since
+       the billing case is a 400 that only its message identifies. */
+    const status = e?.status;
+    const msg = String(e?.message || e);
+    let code = e?.code || "provider_error";
+    let human = "The reasoning tier could not run.";
+
+    if (status === 401 || status === 403) {
+      code = "bad_key";
+      human = "The API key was rejected. Check ANTHROPIC_API_KEY.";
+    } else if (status === 429) {
+      code = "rate_limited";
+      human = "Rate limited by the API. Wait a moment and re-run.";
+    } else if (status === 529 || status === 503) {
+      code = "overloaded";
+      human = "The API is overloaded. Re-run in a moment.";
+    } else if (status === 400 && /credit balance is too low/i.test(msg)) {
+      code = "no_credit";
+      human =
+        "The Anthropic account has no credit. Add credits at console.anthropic.com under Plans & Billing — the key itself is fine.";
+    } else if (status === 400) {
+      code = "bad_request";
+      human = "The API rejected the request shape.";
+    } else if (e?.code === "refusal") {
+      human = "The model declined this request.";
+    }
+
+    return res.status(502).json({ error: code, message: human, detail: msg, model: MODEL });
   }
 }

@@ -183,6 +183,7 @@ async function tierLLM(bank, ledger, cfg) {
       cfg?.onMeter?.({
         source: "stub",
         reason: data?.error || `http_${res.status}`,
+        message: data?.message || null,
         detail: data?.detail || null,
       });
     } catch (e) {
