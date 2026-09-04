@@ -38,7 +38,9 @@ function Confidence({ matches, threshold, truth }) {
         />
         {matches.map((m, i) => {
           const x = 40 + ((m.confidence - 0.4) / 0.6) * (W - 80);
-          const correct = scoreMatch(m, truth);
+          /* uploaded data has no answer key: nothing is provably wrong, so
+             nothing is drawn red rather than everything being drawn red */
+          const correct = truth.length ? scoreMatch(m, truth) : true;
           const cleared = m.confidence >= threshold;
           return (
             <circle

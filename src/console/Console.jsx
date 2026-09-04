@@ -22,6 +22,8 @@ import { DIFF_HINT, SHELL_WIDE, btn } from "../ui/styles.js";
 import { usePointerVars } from "../lib/motion.js";
 import { GlobalFX } from "../ui/effects.jsx";
 import { GlowCard } from "../ui/primitives.jsx";
+import { batchFromCsv, bankCsv, ledgerCsv } from "../lib/csv.js";
+import { loadHistory, recordRun } from "../lib/history.js";
 
 /* A thin marquee of the run's own numbers under the header. It is the one
    piece of chrome that says "this thing is live" while a pass is streaming. */
@@ -59,11 +61,48 @@ function Console({ onBack }) {
   const [runs, setRuns] = useState([]);
   const [resolved, setResolved] = useState([]);
   const [meter, setMeter] = useState(null);
+  const [upload, setUpload] = useState(null);
+  const [csvErr, setCsvErr] = useState(null);
+  const [durable, setDurable] = useState(false);
 
   const batch = useMemo(
-    () => generateBatch({ difficulty, nInvoices: 60, seed }),
-    [difficulty, seed]
+    () => upload || generateBatch({ difficulty, nInvoices: 60, seed }),
+    [difficulty, seed, upload]
   );
+
+  /* Uploaded data carries no answer key, so precision is not merely unknown -
+     it is uncomputable. Everything that scores against truth switches off
+     rather than reporting a number that means nothing. */
+  const graded = batch.truth.length > 0;
+  const histKey = upload ? "csv" : `n${difficulty}-s${seed}`;
+
+  async function loadCsv(files) {
+    setCsvErr(null);
+    try {
+      const byName = {};
+      for (const f of files) byName[/ledger|invoice|ar\b/i.test(f.name) ? "ledger" : "bank"] = f;
+      if (!byName.bank || !byName.ledger)
+        throw new Error("pick two files — one bank/statement CSV and one ledger/invoice CSV");
+      const [b, l] = await Promise.all([byName.bank.text(), byName.ledger.text()]);
+      setUpload(batchFromCsv(b, l));
+    } catch (e) {
+      setCsvErr(String(e?.message || e));
+    }
+  }
+
+  function downloadSample() {
+    const gen = generateBatch({ difficulty, nInvoices: 60, seed });
+    for (const [name, text] of [
+      ["ledger-bank-sample.csv", bankCsv(gen.bank)],
+      ["ledger-invoices-sample.csv", ledgerCsv(gen.ledger)],
+    ]) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+  }
 
   const reset = useCallback(() => {
     setMatches([]);
@@ -74,6 +113,18 @@ function Console({ onBack }) {
     setMeter(null);
   }, []);
   useEffect(reset, [difficulty, seed, reset]);
+
+  useEffect(() => {
+    let live = true;
+    loadHistory(histKey).then(({ history, durable: d }) => {
+      if (!live) return;
+      setRuns(history);
+      setDurable(d);
+    });
+    return () => {
+      live = false;
+    };
+  }, [histKey]);
 
   async function run() {
     setRunning(true);
@@ -94,23 +145,31 @@ function Console({ onBack }) {
       for (const m of res) {
         acc.push(m);
         setMatches([...acc]);
-        await new Promise((r) => setTimeout(r, i === 3 ? 90 : i === 2 ? 32 : 22));
+        /* The per-match pause exists purely so you can watch the passes land.
+           Browsers clamp setTimeout in a hidden tab (and may freeze it), so
+           alt-tabbing mid-run used to stall the whole reconcile. Nobody is
+           watching an animation they cannot see - skip the delay when hidden. */
+        const beat = document.hidden ? 0 : i === 3 ? 90 : i === 2 ? 32 : 22;
+        await new Promise((r) => setTimeout(r, beat));
       }
-      if (res.length) await new Promise((r) => setTimeout(r, 320));
+      if (res.length) await new Promise((r) => setTimeout(r, document.hidden ? 0 : 320));
     }
     setPass(9);
     setRunning(false);
 
     const cl = acc.filter((m) => m.confidence >= threshold);
     const corr = cl.filter((m) => scoreMatch(m, batch.truth)).length;
-    setRuns((r) => [
-      ...r,
-      {
-        rate: batch.bank.length ? cl.length / batch.bank.length : 0,
-        precision: cl.length ? corr / cl.length : 0,
-        rules: rules.length,
-      },
-    ]);
+    const entry = {
+      rate: batch.bank.length ? cl.length / batch.bank.length : 0,
+      precision: graded && cl.length ? corr / cl.length : null,
+      rules: rules.length,
+      graded,
+    };
+    setRuns((r) => [...r, entry]);
+    recordRun(histKey, entry).then(({ history, durable: d }) => {
+      setRuns(history);
+      setDurable(d);
+    });
   }
 
   /* analyst resolves an exception -> mine generalizing rules */
@@ -139,8 +198,9 @@ function Console({ onBack }) {
   const stats = useMemo(() => {
     const cleared = matches.filter((m) => m.confidence >= threshold);
     const escalated = matches.filter((m) => m.confidence < threshold);
-    const correct = cleared.filter((m) => scoreMatch(m, batch.truth)).length;
-    const falsePos = cleared.length - correct;
+    const gradable = batch.truth.length > 0;
+    const correct = gradable ? cleared.filter((m) => scoreMatch(m, batch.truth)).length : 0;
+    const falsePos = gradable ? cleared.length - correct : 0;
     const matchedB = new Set(matches.map((m) => m.bankId));
     const unresolvedBank = batch.bank.filter((b) => !matchedB.has(b.id));
     const claimed = new Set(cleared.flatMap((m) => m.invoiceIds));
@@ -150,7 +210,8 @@ function Console({ onBack }) {
       escalated: escalated.length,
       correct,
       falsePos,
-      precision: cleared.length ? correct / cleared.length : 0,
+      graded: gradable,
+      precision: gradable && cleared.length ? correct / cleared.length : 0,
       rate: batch.bank.length ? cleared.length / batch.bank.length : 0,
       unresolvedBank,
       openInv,
@@ -318,14 +379,17 @@ function Console({ onBack }) {
             backdropFilter: "blur(6px)",
           }}
         >
-          <Control label={`NOISE LEVEL ${difficulty}`} hint={DIFF_HINT[difficulty]}>
+          <Control
+            label={upload ? "NOISE LEVEL —" : `NOISE LEVEL ${difficulty}`}
+            hint={upload ? "uploaded data, not generated" : DIFF_HINT[difficulty]}
+          >
             <input
               type="range"
               min={1}
               max={5}
               step={1}
               value={difficulty}
-              disabled={running}
+              disabled={running || !!upload}
               onChange={(e) => setDifficulty(+e.target.value)}
               style={{ width: 150 }}
             />
@@ -349,14 +413,36 @@ function Console({ onBack }) {
           <div style={{ flex: 1 }} />
 
           <div style={{ display: "flex", gap: 10 }}>
-            <button
-              onClick={() => setSeed((s) => s + 1)}
-              disabled={running}
-              className="fx-mag"
-              style={btn(false)}
-            >
-              New batch
-            </button>
+            {upload ? (
+              <button
+                onClick={() => setUpload(null)}
+                disabled={running}
+                className="fx-mag"
+                style={btn(false)}
+              >
+                Back to generated
+              </button>
+            ) : (
+              <button
+                onClick={() => setSeed((s) => s + 1)}
+                disabled={running}
+                className="fx-mag"
+                style={btn(false)}
+              >
+                New batch
+              </button>
+            )}
+            <label className="fx-mag" style={{ ...btn(false), display: "inline-block" }}>
+              Load CSV
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                multiple
+                disabled={running}
+                onChange={(e) => loadCsv([...e.target.files])}
+                style={{ display: "none" }}
+              />
+            </label>
             <button onClick={run} disabled={running} className="fx-mag" style={btn(true)}>
               {running
                 ? `Pass ${Math.min(pass + 1, 4)} of 4…`
@@ -385,15 +471,19 @@ function Console({ onBack }) {
             series={runs.map((r) => r.rate)}
             big
           />
-          <Metric
-            label="PRECISION"
-            num={stats.precision * 100}
-            decimals={1}
-            suffix="%"
-            sub={`${stats.falsePos} false match${stats.falsePos === 1 ? "" : "es"}`}
-            series={runs.map((r) => r.precision)}
-            tone={stats.falsePos > 0 ? T.bad : T.ok}
-          />
+          {stats.graded ? (
+            <Metric
+              label="PRECISION"
+              num={stats.precision * 100}
+              decimals={1}
+              suffix="%"
+              sub={`${stats.falsePos} false match${stats.falsePos === 1 ? "" : "es"}`}
+              series={runs.filter((r) => typeof r.precision === "number").map((r) => r.precision)}
+              tone={stats.falsePos > 0 ? T.bad : T.ok}
+            />
+          ) : (
+            <Metric label="PRECISION" value="—" sub="no answer key to score against" tone={T.dim} />
+          )}
           <Metric label="ESCALATED" num={stats.escalated} sub="below threshold" />
           <Metric
             label="NO CANDIDATE"
@@ -403,6 +493,55 @@ function Console({ onBack }) {
           />
           <Metric label="OPEN AR" num={stats.openInv.length} sub="invoices uncleared" />
         </div>
+
+        {csvErr && (
+          <div
+            style={{
+              marginTop: 12,
+              padding: "12px 18px",
+              borderRadius: 12,
+              border: `1px solid rgba(229,72,77,.4)`,
+              background: "rgba(229,72,77,.07)",
+              fontFamily: MONO,
+              fontSize: 12.5,
+              color: T.bad,
+            }}
+          >
+            CSV: {csvErr}{" "}
+            <span style={{ color: T.muted }}>
+              — expected columns: bank id, date, amount, ref, counterparty · ledger id, ref,
+              customer, amount, issueDate, dueDate. Use “Sample CSV” for the exact shape.
+            </span>
+          </div>
+        )}
+
+        {!graded && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              flexWrap: "wrap",
+              marginTop: 12,
+              padding: "13px 20px",
+              borderRadius: 12,
+              border: `1px solid rgba(212,175,55,.34)`,
+              background: "rgba(212,175,55,.06)",
+              fontFamily: MONO,
+              fontSize: 12.5,
+            }}
+          >
+            <span style={{ color: T.gold, letterSpacing: "0.14em", fontSize: 10.5 }}>UNGRADED</span>
+            <span style={{ color: T.muted }}>
+              Uploaded data has no answer key, so precision cannot be computed — only match rate is
+              meaningful here. Generated batches plant ground truth, which is what makes accuracy
+              measurable rather than asserted.
+            </span>
+            <button onClick={downloadSample} className="fx-mag" style={btn(false)}>
+              Sample CSV
+            </button>
+          </div>
+        )}
 
         {meter && (
           <div
@@ -493,6 +632,10 @@ function Console({ onBack }) {
             <span style={{ color: T.dim }}>
               after {resolved.length} analyst decision{resolved.length === 1 ? "" : "s"} →{" "}
               {rules.length} rule{rules.length === 1 ? "" : "s"}
+            </span>
+            <span style={{ color: T.dim, marginLeft: "auto", fontSize: 10.5, letterSpacing: "0.12em" }}>
+              {runs.length} RUN{runs.length === 1 ? "" : "S"} KEPT ·{" "}
+              {durable ? "SERVER" : "THIS BROWSER"}
             </span>
           </div>
         )}

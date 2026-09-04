@@ -203,6 +203,10 @@ const dstrShort = (t) => new Date(t).toISOString().slice(0, 10);
    -------------------------------------------------------------------- */
 async function tierLLMStub(bank, ledger, cfg) {
   const { truth, seed } = cfg;
+  /* The stub only "reasons" by reading the planted answer key. On uploaded
+     data there is no key, so it has nothing to work from - returning random
+     guesses there would be worse than returning nothing. */
+  if (!truth || !truth.length) return [];
   const rnd = mulberry32(seed + 777);
   const openL = new Set(ledger.map((l) => l.id));
   const out = [];
