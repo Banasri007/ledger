@@ -200,18 +200,6 @@ counterparty — but it is not a trained model, and calling it one would be over
 (~15% wrong) so the numbers stay honest rather than flattering. Live-model accuracy is not
 yet benchmarked across seeds; the live path is verified to work, not yet measured.
 
-**`/api/reconcile` is unauthenticated.** Anyone with the deployed URL can spend your API
-quota. Fine for a local demo; add a shared secret before putting the URL somewhere public.
-
-**Run history is per-browser unless you configure a store.** It uses `localStorage` by
-default. Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` and it persists server-side instead —
-the console tells you which one is active.
-
-**Cost in dollars requires a configured rate.** Anthropic's rates are built in. Groq does
-not publish a machine-readable price list, so the meter shows tokens and latency and reads
-`cost n/a` until you set `LEDGER_PRICE_IN` / `LEDGER_PRICE_OUT`. It will not invent a
-number.
-
 ## Running it
 
 ```bash
@@ -228,27 +216,3 @@ GROQ_API_KEY=gsk_...         # free tier: https://console.groq.com/keys
 # or
 ANTHROPIC_API_KEY=sk-ant-... # needs credit: https://console.anthropic.com
 ```
-
-`.env.local` is gitignored. **Never put a key in `.env.example`** — that file is the
-template and it *is* committed.
-
-`/api/*` is served during `npm run dev` by a Vite middleware, so the Vercel CLI is not
-needed locally.
-
-### Deploying
-
-Import the repo on Vercel — the Vite preset and the `api/` folder are auto-detected. Add
-the same key under **Settings → Environment Variables**, then **redeploy**: environment
-changes do not apply to existing deployments. Do not prefix the variable with `VITE_`, or
-Vite will inline it into the client bundle and ship your key to every visitor.
-
-### Reproducing the numbers
-
-The tables above come from running the engine headless across seeds 42–46 at threshold
-0.70. `src/engine/` has no UI dependencies, so it can be imported and run directly from
-Node.
-
----
-
-Built with React and Vite. No UI framework, no chart library, no state library — every
-visual is hand-rolled SVG.
