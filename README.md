@@ -197,8 +197,19 @@ from an analyst's decision. It generalizes — one alias fixes every wire from t
 counterparty — but it is not a trained model, and calling it one would be overclaiming.
 
 **The accuracy tables use the stubbed reasoning tier.** The stub is deliberately imperfect
-(~15% wrong) so the numbers stay honest rather than flattering. Live-model accuracy is not
-yet benchmarked across seeds; the live path is verified to work, not yet measured.
+(~15% wrong) so the numbers stay honest rather than flattering, and it keeps the tables
+reproducible without a key or a network.
+
+The live tier is verified working end to end on Groq (`openai/gpt-oss-120b`): on seed 42 at
+noise 4 it saw **6 of 42 wires**, took **9.5s**, spent **3,513 input / 4,003 output tokens**,
+and cleared the batch at **90.5% match rate with 100% precision** — against the stub's 92.3%
+precision on the same tier. That is a single run, not a benchmark: n=1 is an anecdote, and
+the tables above stay stub-based until there is a proper sweep.
+
+**Groq's free tier rate-limits rapid successive runs.** A single reconcile is comfortable;
+three back to back hit the limit, because ~4k output tokens per run adds up against a
+per-minute budget. The console degrades to the stub and reports `rate_limited` rather than
+failing. Space demo runs out, or set `LEDGER_MODEL=openai/gpt-oss-20b` for a lighter one.
 
 ## Running it
 

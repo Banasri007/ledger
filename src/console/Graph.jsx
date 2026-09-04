@@ -32,6 +32,59 @@ const W = 720;
 const ROW_MAX = 17;
 const LABEL_MIN_PX = 12; /* real px per row below which labels stop fitting */
 
+/* The edge colours mean nothing without this, and it used to live in the rail
+   where it vanished the moment you hovered anything - and it omitted tier 0
+   entirely, so the green edges that appear after a re-run had no key. */
+function Legend({ matches, unresolved, nm }) {
+  const swatch = (color, dashed) => (
+    <svg width={22} height={6} style={{ display: "block", flexShrink: 0 }}>
+      <line
+        x1={0}
+        y1={3}
+        x2={22}
+        y2={3}
+        stroke={color}
+        strokeWidth={2.2}
+        strokeDasharray={dashed ? "3 2" : undefined}
+      />
+    </svg>
+  );
+
+  const item = (key, color, label, count, dashed) => (
+    <span key={key} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+      {swatch(color, dashed)}
+      <span style={{ color: T.muted }}>{label}</span>
+      {count !== null && <span style={{ color: T.dim }}>{count}</span>}
+    </span>
+  );
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 20,
+        flexWrap: "wrap",
+        padding: "9px 26px",
+        borderBottom: `1px solid ${T.line}`,
+        fontFamily: MONO,
+        fontSize: 11,
+        letterSpacing: "0.04em",
+        flexShrink: 0,
+        background: "rgba(10,10,10,.5)",
+      }}
+    >
+      {[0, 1, 2, 3].map((t) =>
+        item(t, TIER_META[t].color, `Tier ${t} · ${TIER_META[t].name}`, matches.filter((m) => m.tier === t).length)
+      )}
+      {item("nm", T.gold, "N:M — one wire, many invoices", nm, true)}
+      {item("un", T.bad, "Unresolved", unresolved)}
+      <span style={{ flex: 1 }} />
+      <span style={{ color: T.dim }}>thickness = confidence</span>
+    </div>
+  );
+}
+
 function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty }) {
   const { bank, ledger } = batch;
 
@@ -174,6 +227,12 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
           </span>
           <span>LEDGER · {ledger.length}</span>
         </div>
+
+        <Legend
+          matches={matches}
+          unresolved={bank.length - new Set(matches.map((m) => m.bankId)).size}
+          nm={nm.length}
+        />
 
         <div
           ref={boxRef}
@@ -382,21 +441,6 @@ function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty })
         ) : !hover ? (
           <div style={{ color: T.dim, lineHeight: 1.7 }}>
             Click any wire to pin it and trace where it settled. Hover to peek.
-            <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 10 }}>
-              {[1, 2, 3].map((t) => (
-                <div key={t} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 18, height: 2, background: TIER_META[t].color }} />
-                  <span style={{ color: T.muted }}>
-                    Tier {t} · {TIER_META[t].name}
-                  </span>
-                  <span style={{ color: T.dim }}>{matches.filter((m) => m.tier === t).length}</span>
-                </div>
-              ))}
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 18, height: 2, background: T.bad }} />
-                <span>Unresolved</span>
-              </div>
-            </div>
             {nm.length > 0 ? (
               <div style={{ marginTop: 22, paddingTop: 16, borderTop: `1px solid ${T.line}` }}>
                 <span style={{ color: T.gold }}>{nm.length}</span> dashed edges are one wire paying
