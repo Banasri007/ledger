@@ -297,6 +297,41 @@ async function tierLearned(bank, ledger, cfg) {
   return out;
 }
 
+/* Rank the open invoices a human should consider for one unmatched wire.
+
+   This exists because the analyst review queue used to look the answer up in
+   the planted truth, which is not review - it is cheating, and it does nothing
+   at all on uploaded data where no answer key exists. Ranking real candidates
+   and letting a person choose is what an actual exception queue does. */
+function rankCandidates(b, ledger, limit = 6) {
+  const bRef = normRef(b.ref);
+  const bDigits = digitsOf(b.ref).slice(-4);
+  return ledger
+    .map((l) => {
+      const amtDiff = Math.abs(l.amount - b.amount);
+      const rel = amtDiff / Math.max(l.amount, 1);
+      const nm = nameScore(b.counterparty, l.customer);
+      const refHit = bRef && bRef === normRef(l.ref);
+      const digitHit = !refHit && bDigits.length >= 3 && digitsOf(l.ref).endsWith(bDigits);
+      const days = Math.round(Math.abs(b.date - l.issueDate) / day);
+      const amtS =
+        amtDiff < 0.01 ? 1 : amtDiff < 60 || rel < 0.02 ? 0.8 - Math.min(rel, 0.02) * 8 : Math.max(0, 0.35 - rel);
+      const dateS = days <= 12 ? 1 - days / 24 : 0;
+      const score = amtS * 0.46 + (refHit ? 0.22 : digitHit ? 0.12 : 0) + nm * 0.2 + dateS * 0.12;
+      return {
+        inv: l,
+        score: Math.round(score * 1000) / 1000,
+        delta: Math.round((b.amount - l.amount) * 100) / 100,
+        refHit,
+        digitHit,
+        nameScore: Math.round(nm * 100) / 100,
+        days,
+      };
+    })
+    .sort((a, c) => c.score - a.score)
+    .slice(0, limit);
+}
+
 /* mine durable rules from one analyst resolution */
 function mineRules(bankRec, invs) {
   const r = [];
@@ -344,4 +379,4 @@ function scoreMatch(m, truth) {
   return a === b;
 }
 
-export { normRef, normName, nameScore, tierExact, tierFuzzy, subsetSum, tierLLM, tierLLMStub, digitsOf, tierLearned, mineRules, scoreMatch };
+export { normRef, normName, nameScore, tierExact, tierFuzzy, subsetSum, tierLLM, tierLLMStub, digitsOf, tierLearned, mineRules, rankCandidates, scoreMatch };

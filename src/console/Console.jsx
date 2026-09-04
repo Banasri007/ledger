@@ -14,7 +14,15 @@ import { Exceptions } from "./Exceptions.jsx";
 import { Forecast } from "./Forecast.jsx";
 import { Graph } from "./Graph.jsx";
 import { generateBatch } from "../engine/generate.js";
-import { mineRules, scoreMatch, tierExact, tierFuzzy, tierLLM, tierLearned } from "../engine/match.js";
+import {
+  mineRules,
+  rankCandidates,
+  scoreMatch,
+  tierExact,
+  tierFuzzy,
+  tierLLM,
+  tierLearned,
+} from "../engine/match.js";
 import { pct } from "../lib/format.js";
 import { MONO, SANS, T } from "../theme.js";
 import { Control, Metric } from "../ui/primitives.jsx";
@@ -176,20 +184,26 @@ function Console({ onBack }) {
     });
   }
 
-  /* analyst resolves an exception -> mine generalizing rules */
-  function resolveException(bankId) {
+  /* An analyst decision. invoiceIds comes from the reviewer's own choice in
+     the exception queue. This used to read batch.truth - which is not review,
+     it is looking at the answer key, and it did nothing at all on uploaded
+     data where no answer key exists. */
+  function resolveException(bankId, invoiceIds) {
     const b = batch.bank.find((x) => x.id === bankId);
-    const t = batch.truth.find((x) => x.bankId === bankId);
     if (!b) return;
-    if (!t) {
+
+    const invs = (invoiceIds || [])
+      .map((id) => batch.ledger.find((l) => l.id === id))
+      .filter(Boolean);
+
+    if (!invs.length) {
       setResolved((r) => [...r, { bankId, note: "Confirmed as a genuine orphan — no invoice." }]);
       return;
     }
-    const invs = t.invoiceIds.map((id) => batch.ledger.find((l) => l.id === id)).filter(Boolean);
     const mined = mineRules(b, invs);
     setResolved((r) => [
       ...r,
-      { bankId, note: `Matched to ${t.invoiceIds.join(", ")}`, mined: mined.length },
+      { bankId, note: `Matched to ${invs.map((i) => i.id).join(", ")}`, mined: mined.length },
     ]);
     setRules((prev) => {
       const key = (x) => x.type + (x.from || "") + (x.customer || "");
@@ -678,6 +692,11 @@ function Console({ onBack }) {
             onResolve={resolveException}
             resolved={resolved}
             rules={rules}
+            wireFor={(id) => batch.bank.find((b) => b.id === id)}
+            candidatesFor={(id) => {
+              const b = batch.bank.find((x) => x.id === id);
+              return b ? rankCandidates(b, stats.openInv) : [];
+            }}
           />
         )}
       </div>
