@@ -574,6 +574,7 @@ function Console({ onBack }) {
               }}
             >
               TIER 3 · {meter.source === "live" ? "LIVE" : "STUB"}
+              {meter.source === "live" && meter.provider ? ` · ${meter.provider.toUpperCase()}` : ""}
             </span>
 
             {meter.source === "live" ? (
@@ -590,9 +591,15 @@ function Console({ onBack }) {
                   {meter.inputTokens.toLocaleString()} in /{" "}
                   {meter.outputTokens.toLocaleString()} out
                 </span>
-                <span style={{ color: T.ok, fontWeight: 700 }}>
-                  ${meter.costUsd.toFixed(4)}
-                </span>
+                {typeof meter.costUsd === "number" ? (
+                  <span style={{ color: T.ok, fontWeight: 700 }}>
+                    ${meter.costUsd.toFixed(4)}
+                  </span>
+                ) : (
+                  <span style={{ color: T.dim }} title="set LEDGER_PRICE_IN / LEDGER_PRICE_OUT">
+                    cost n/a
+                  </span>
+                )}
                 {meter.invented > 0 && (
                   <span style={{ color: T.bad }}>
                     {meter.invented} invented id{meter.invented === 1 ? "" : "s"} dropped

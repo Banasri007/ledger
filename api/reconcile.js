@@ -11,13 +11,15 @@
    falls back to the deterministic stub. A demo should never die on stage
    because someone's wifi dropped. */
 
-import { reasonOverResidual, MODEL } from "./_provider.js";
+import { activeProvider, reasonOverResidual } from "./_model.js";
 
 const MAX_WIRES = 40;
 const MAX_INVOICES = 140;
 
-function bad(res, status, error, detail) {
-  return res.status(status).json({ error, detail: detail || null, model: MODEL });
+function bad(res, status, error, detail, message) {
+  return res
+    .status(status)
+    .json({ error, message: message || null, detail: detail || null, provider: activeProvider() });
 }
 
 export default async function handler(req, res) {
@@ -32,9 +34,15 @@ export default async function handler(req, res) {
      about, and no reason to report a missing key */
   if (!wires.length) return res.status(200).json({ matches: [], meter: null });
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!activeProvider()) {
     /* not the user's mistake — the client reads this as "run the stub" */
-    return bad(res, 503, "no_key", "ANTHROPIC_API_KEY is not set on the server");
+    return bad(
+      res,
+      503,
+      "no_key",
+      "no provider key on the server",
+      "No model key configured. Set GROQ_API_KEY or ANTHROPIC_API_KEY — deterministic fallback in use."
+    );
   }
 
   if (wires.length > MAX_WIRES) return bad(res, 400, "too_many_wires", `max ${MAX_WIRES}`);
@@ -99,7 +107,9 @@ export default async function handler(req, res) {
 
     if (status === 401 || status === 403) {
       code = "bad_key";
-      human = "The API key was rejected. Check ANTHROPIC_API_KEY.";
+      human = `The API key was rejected. Check ${
+        activeProvider() === "groq" ? "GROQ_API_KEY" : "ANTHROPIC_API_KEY"
+      }.`;
     } else if (status === 429) {
       code = "rate_limited";
       human = "Rate limited by the API. Wait a moment and re-run.";
@@ -110,6 +120,9 @@ export default async function handler(req, res) {
       code = "no_credit";
       human =
         "The Anthropic account has no credit. Add credits at console.anthropic.com under Plans & Billing — the key itself is fine.";
+    } else if (status === 404 && /model/i.test(msg)) {
+      code = "bad_model";
+      human = "That model id is not available on this provider. Check LEDGER_MODEL.";
     } else if (status === 400) {
       code = "bad_request";
       human = "The API rejected the request shape.";
@@ -117,6 +130,8 @@ export default async function handler(req, res) {
       human = "The model declined this request.";
     }
 
-    return res.status(502).json({ error: code, message: human, detail: msg, model: MODEL });
+    return res
+      .status(502)
+      .json({ error: code, message: human, detail: msg, provider: activeProvider() });
   }
 }

@@ -14,7 +14,17 @@ function apiRoutes(env) {
     name: 'ledger-api-dev',
     configureServer(server) {
       /* handlers read process.env, which Vite does not populate for us */
-      for (const k of ['ANTHROPIC_API_KEY', 'LEDGER_MODEL', 'KV_REST_API_URL', 'KV_REST_API_TOKEN']) {
+      const passthrough = [
+        'GROQ_API_KEY',
+        'ANTHROPIC_API_KEY',
+        'LEDGER_PROVIDER',
+        'LEDGER_MODEL',
+        'LEDGER_PRICE_IN',
+        'LEDGER_PRICE_OUT',
+        'KV_REST_API_URL',
+        'KV_REST_API_TOKEN',
+      ]
+      for (const k of passthrough) {
         if (env[k] && !process.env[k]) process.env[k] = env[k]
       }
 
