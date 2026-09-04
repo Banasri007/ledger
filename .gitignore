@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# generated artefacts
+sample-audit-pack.html
+ledger-audit-pack-*.html

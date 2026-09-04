@@ -32,6 +32,8 @@ import { usePointerVars } from "../lib/motion.js";
 import { GlobalFX } from "../ui/effects.jsx";
 import { GlowCard } from "../ui/primitives.jsx";
 import { batchFromCsv, bankCsv, ledgerCsv } from "../lib/csv.js";
+import { downloadAuditPack } from "../lib/auditPack.js";
+import { findLeakage } from "../engine/leakage.js";
 import { loadHistory, recordRun } from "../lib/history.js";
 
 /* A thin marquee of the run's own numbers under the header. It is the one
@@ -451,6 +453,28 @@ function Console({ onBack }) {
                 New batch
               </button>
             )}
+            <button
+              onClick={() =>
+                downloadAuditPack({
+                  batch,
+                  matches,
+                  stats,
+                  threshold,
+                  difficulty,
+                  seed,
+                  rules,
+                  resolved,
+                  meter,
+                  leakage: findLeakage({ batch, matches, threshold }),
+                })
+              }
+              disabled={running || !matches.length}
+              className="fx-mag"
+              style={{ ...btn(false), opacity: matches.length ? 1 : 0.45 }}
+              title={matches.length ? "Download the audit pack" : "Run a reconciliation first"}
+            >
+              Audit pack
+            </button>
             <label className="fx-mag" style={{ ...btn(false), display: "inline-block" }}>
               Load CSV
               <input
