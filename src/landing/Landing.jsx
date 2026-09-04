@@ -110,7 +110,7 @@ function Landing({ onLaunch }) {
         }}
       >
         <div style={{ ...SHELL, display: "flex", alignItems: "center", height: 64, gap: 26 }}>
-          <span style={{ fontWeight: 800, fontSize: 20.5, letterSpacing: "-0.03em" }}>
+          <span style={{ fontWeight: 800, fontSize: 25, letterSpacing: "-0.03em" }}>
             Ledger
             <span
               style={{
@@ -256,14 +256,14 @@ function Landing({ onLaunch }) {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 26, height: 2, background: color }} />
-                <span style={{ fontFamily: MONO, fontSize: 12.2, color: T.dim, letterSpacing: "0.14em" }}>
+                <span style={{ fontFamily: MONO, fontSize: "clamp(11px, 0.78vw, 15px)", color: T.dim, letterSpacing: "0.14em" }}>
                   TIER {n}
                 </span>
               </div>
-              <div style={{ fontSize: 28.1, fontWeight: 800, letterSpacing: "-0.03em", marginTop: 16, color }}>
+              <div style={{ fontSize: "clamp(24px, 1.9vw, 36px)", fontWeight: 800, letterSpacing: "-0.03em", marginTop: 16, color }}>
                 {name}
               </div>
-              <p style={{ fontSize: 16.7, lineHeight: 1.68, color: T.muted, marginTop: 12 }}>{copy}</p>
+              <p style={{ fontSize: "clamp(14px, 1.05vw, 20px)", lineHeight: 1.68, color: T.muted, marginTop: 12 }}>{copy}</p>
             </GlowCard>
           ))}
         </div>
@@ -302,13 +302,13 @@ function Landing({ onLaunch }) {
                 backdropFilter: "blur(7px)",
               }}
             >
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.16em", color: T.dim }}>
+              <div style={{ fontFamily: MONO, fontSize: "clamp(10px, 0.72vw, 14px)", letterSpacing: "0.16em", color: T.dim }}>
                 {label}
               </div>
-              <div style={{ fontSize: 23.8, fontWeight: 800, letterSpacing: "-0.03em", margin: "10px 0" }}>
+              <div style={{ fontSize: "clamp(22px, 1.65vw, 32px)", fontWeight: 800, letterSpacing: "-0.03em", margin: "10px 0" }}>
                 {value}
               </div>
-              <p style={{ fontSize: 15.5, lineHeight: 1.65, color: T.muted, margin: 0 }}>{copy}</p>
+              <p style={{ fontSize: "clamp(13.5px, 0.98vw, 19px)", lineHeight: 1.65, color: T.muted, margin: 0 }}>{copy}</p>
             </GlowCard>
           ))}
         </div>
@@ -357,7 +357,7 @@ function Landing({ onLaunch }) {
           <H2>Run a batch yourself.</H2>
           <p
             style={{
-              fontSize: 19.5,
+              fontSize: "clamp(17px, 1.25vw, 24px)",
               lineHeight: 1.7,
               color: T.muted,
               maxWidth: 500,

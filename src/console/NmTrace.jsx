@@ -5,23 +5,25 @@ import { fmt } from "../lib/format.js";
 import { MONO, T } from "../theme.js";
 import { TIER_META } from "../ui/tiers.js";
 
-/* ---------- N:M money shot: one wire fanning out, at a scale that fits ----------
-   The main graph is 60 rows tall inside a 58vh scroller, so a wire and its
-   invoices can sit 1000px apart — no scroll position shows them together.
-   This strip gives the fan its own coordinate space. ---------------------- */
+/* ---------- the trace fan ----------------------------------------------
+   This used to be a strip laid across the top of the graph, which hid the
+   very rows it was talking about. It now lives in the side column, shaped
+   for a narrow portrait space, so the fan and the full graph are on screen
+   at the same time and you can see which edge is lit.
+   ---------------------------------------------------------------------- */
 function FocusFan({ m, bank, ledger, step }) {
   const b = bank.find((x) => x.id === m.bankId);
   const invs = m.invoiceIds.map((id) => ledger.find((l) => l.id === id)).filter(Boolean);
   if (!b || !invs.length) return null;
   const meta = TIER_META[m.tier];
   const n = invs.length;
-  const W = 620;
-  const H = 30 + n * 46;
-  const xA = 210,
-    xB = 420,
-    mid = (xA + xB) / 2;
+  const W = 420;
+  const H = 48 + n * 78;
+  const xA = 62;
+  const xB = 246;
+  const mid = (xA + xB) / 2;
   const yMid = H / 2;
-  const yFor = (i) => yMid + (i - (n - 1) / 2) * 46;
+  const yFor = (i) => 40 + i * 78 + 39;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block" }}>
@@ -32,45 +34,29 @@ function FocusFan({ m, bank, ledger, step }) {
         return (
           <g key={l.id} style={{ animation: "edgeIn .4s ease-out" }}>
             <path d={d} fill="none" stroke={meta.color} strokeWidth={2.6} opacity={0.85} />
-            <circle r={3.2} fill={meta.color}>
+            <circle r={3.4} fill={meta.color}>
               <animateMotion dur="1.5s" repeatCount="indefinite" path={d} />
             </circle>
-            <circle cx={xB} cy={y2} r={4} fill={T.gold} stroke={T.goldHi} strokeWidth={1.1} />
-            <text x={xB + 13} y={y2 + 3.6} fontFamily={MONO} fontSize={12.2} fill={T.text}>
+            <circle cx={xB} cy={y2} r={4.6} fill={T.gold} stroke={T.goldHi} strokeWidth={1.2} />
+            <text x={xB + 16} y={y2 - 2} fontFamily={MONO} fontSize={14} fill={T.text}>
               {l.ref}
             </text>
-            <text x={xB + 100} y={y2 + 3.6} fontFamily={MONO} fontSize={12.2} fill={T.muted}>
+            <text x={xB + 16} y={y2 + 17} fontFamily={MONO} fontSize={13} fill={T.muted}>
               {fmt(l.amount)}
             </text>
           </g>
         );
       })}
-      <circle cx={xA} cy={yMid} r={5.5} fill={T.gold} stroke={T.goldHi} strokeWidth={1.2} />
-      <text
-        x={xA - 15}
-        y={yMid - 4}
-        textAnchor="end"
-        fontFamily={MONO}
-        fontSize={11.6}
-        fill={T.muted}
-      >
-        {b.counterparty}
-      </text>
-      <text
-        x={xA - 15}
-        y={yMid + 12}
-        textAnchor="end"
-        fontFamily={MONO}
-        fontSize={14.9}
-        fill={T.gold}
-      >
-        {fmt(b.amount)}
+      <circle cx={xA} cy={yMid} r={6.5} fill={T.gold} stroke={T.goldHi} strokeWidth={1.4} />
+      {/* the amount lives in the readout directly below; repeating it here only
+          overflowed the narrow gutter */}
+      <text x={xA} y={yMid - 18} textAnchor="middle" fontFamily={MONO} fontSize={12} fill={T.muted}>
+        WIRE
       </text>
     </svg>
   );
 }
 
-/* ---------- N:M readout: the subset sum, ticking to the wire ---------- */
 function SubsetSum({ m, bank, ledger, step }) {
   const b = bank.find((x) => x.id === m.bankId);
   const invs = m.invoiceIds.map((id) => ledger.find((l) => l.id === id)).filter(Boolean);
@@ -84,10 +70,10 @@ function SubsetSum({ m, bank, ledger, step }) {
   return (
     <div style={{ lineHeight: 1.7 }}>
       <div style={{ fontSize: 11.6, letterSpacing: "0.16em", color: meta.color }}>
-        SUBSET SUM &middot; TIER {m.tier}
+        {invs.length > 1 ? "SUBSET SUM" : "TRACE"} &middot; TIER {m.tier}
       </div>
       <div style={{ color: T.text, fontSize: 14.9, fontWeight: 600, marginTop: 12 }}>
-        {m.bankId} &middot; one wire
+        {m.bankId} &middot; {invs.length > 1 ? `one wire, ${invs.length} invoices` : "one wire"}
       </div>
       <div style={{ color: T.dim }}>{b?.counterparty}</div>
       <div
@@ -147,7 +133,7 @@ function SubsetSum({ m, bank, ledger, step }) {
           fontSize: 14,
         }}
       >
-        ✓ reconciles within the $55 tolerance
+        ✓ {invs.length > 1 ? "reconciles within the $55 tolerance" : "matched within tolerance"}
       </div>
 
       <div style={{ height: 1, background: T.line, margin: "16px 0" }} />

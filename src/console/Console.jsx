@@ -198,7 +198,7 @@ function Console({ onBack }) {
           backdropFilter: "blur(10px)",
         }}
       >
-        <div style={{ ...SHELL_WIDE, display: "flex", alignItems: "center", gap: 22, height: 60 }}>
+        <div style={{ ...SHELL_WIDE, display: "flex", alignItems: "center", gap: 26, height: 84 }}>
           <button
             onClick={onBack}
             style={{
@@ -207,7 +207,7 @@ function Console({ onBack }) {
               cursor: "pointer",
               padding: 0,
               fontWeight: 800,
-              fontSize: 19.4,
+              fontSize: 27,
               letterSpacing: "-0.03em",
               color: T.text,
               fontFamily: SANS,
@@ -227,7 +227,7 @@ function Console({ onBack }) {
           <div
             style={{
               fontFamily: MONO,
-              fontSize: 11.6,
+              fontSize: 12.5,
               color: T.dim,
               letterSpacing: "0.16em",
               paddingTop: 2,
@@ -246,7 +246,7 @@ function Console({ onBack }) {
               border: `1px solid ${running ? "rgba(212,175,55,.4)" : T.line}`,
               background: running ? "rgba(212,175,55,.08)" : "transparent",
               fontFamily: MONO,
-              fontSize: 11,
+              fontSize: 12,
               letterSpacing: "0.16em",
               color: running ? T.gold : T.dim,
               transition: "all .35s",
@@ -269,9 +269,9 @@ function Console({ onBack }) {
                   borderRadius: 7,
                   cursor: "pointer",
                   fontFamily: MONO,
-                  fontSize: 12.8,
+                  fontSize: 15,
                   letterSpacing: "0.09em",
-                  padding: "8px 14px",
+                  padding: "11px 20px",
                   color: view === v ? T.gold : T.dim,
                 }}
                 className="fx-mag"

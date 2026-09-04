@@ -6,8 +6,8 @@ const Eyebrow = ({ children }) => (
   <div
     style={{
       fontFamily: MONO,
-      fontSize: 12.2,
-      letterSpacing: "0.2em",
+      fontSize: "clamp(11px, 0.8vw, 16px)",
+      letterSpacing: "0.24em",
       color: T.gold,
       marginBottom: 18,
     }}
@@ -19,7 +19,7 @@ const Eyebrow = ({ children }) => (
 const H2 = ({ children }) => (
   <h2
     style={{
-      fontSize: "clamp(32px, 3.9vw, 54px)",
+      fontSize: "clamp(34px, 4.6vw, 76px)",
       fontWeight: 800,
       letterSpacing: "-0.035em",
       lineHeight: 1.08,
@@ -34,10 +34,10 @@ const H2 = ({ children }) => (
 const Body = ({ children, w = 620 }) => (
   <p
     style={{
-      fontSize: 19,
-      lineHeight: 1.75,
+      fontSize: "clamp(17px, 1.28vw, 25px)",
+      lineHeight: 1.72,
       color: T.muted,
-      maxWidth: w,
+      maxWidth: `min(${Math.round(w * 1.35)}px, 48vw)`,
       margin: "20px 0 0",
     }}
   >

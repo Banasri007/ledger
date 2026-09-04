@@ -299,34 +299,80 @@ function BackCurve() {
   );
 }
 
-/* 5 - the residual: the book closing itself, edge by edge */
+/* 5 - the residual: the book closing itself, edge by edge.
+
+   Pushed off the extreme edge (11%/89% rather than 5%/95%, which read as a
+   stray bar of dots hugging the frame), denser, and each edge now lands with
+   a green ping on the invoice it clears - so the section reads as settlement
+   happening rather than as decoration. */
 function BackResolve() {
-  const rows = 29;
+  const rows = 34;
+  const xa = 88;
+  const xb = 712;
+  const y = (i) => 16 + i * 11.6;
+  const delay = (i) => ((i * 5) % 13) * 0.42;
+
   return (
     <svg viewBox="0 0 800 420" preserveAspectRatio={slice} style={SVG}>
       <g className="fx-par-1">
+        {/* the residual, still open: faint red stubs waiting to be cleared */}
+        {Array.from({ length: rows }, (_, i) => (
+          <line
+            key={"s" + i}
+            x1={xa}
+            y1={y(i)}
+            x2={xa + 26}
+            y2={y(i)}
+            stroke={T.bad}
+            strokeWidth={1}
+            opacity={0.22}
+          />
+        ))}
+
         {Array.from({ length: rows }, (_, i) => {
-          const y1 = 22 + i * 14;
-          const y2 = 22 + ((i * 7) % rows) * 14;
+          const y1 = y(i);
+          const y2 = y((i * 7 + 3) % rows);
+          const d = `M ${xa} ${y1} C ${xa + 250} ${y1}, ${xb - 250} ${y2}, ${xb} ${y2}`;
           return (
-            <path
-              key={i}
-              d={`M 44 ${y1} C 400 ${y1}, 400 ${y2}, 756 ${y2}`}
-              fill="none"
-              stroke="#6EE7A8"
-              strokeWidth={1.1}
-              opacity={0}
-              strokeDasharray="600"
-              style={{ animation: `resolve 7s ease-out ${(i % 9) * 0.35}s infinite` }}
-            />
+            <g key={i}>
+              <path
+                d={d}
+                fill="none"
+                stroke="#6EE7A8"
+                strokeWidth={1.3}
+                opacity={0}
+                strokeDasharray="700"
+                style={{ animation: `resolve 7s ease-out ${delay(i)}s infinite` }}
+              />
+              <circle
+                cx={xb}
+                cy={y2}
+                r={3}
+                fill="none"
+                stroke="#6EE7A8"
+                strokeWidth={1.2}
+                opacity={0}
+                style={{ animation: `ping 7s ease-out ${delay(i) + 2.2}s infinite` }}
+              />
+            </g>
           );
         })}
+
         {Array.from({ length: rows }, (_, i) => (
           <g key={"n" + i}>
-            <circle cx={44} cy={22 + i * 14} r={2.6} fill="rgba(242,242,242,.6)" />
-            <circle cx={756} cy={22 + i * 14} r={2.6} fill="rgba(242,242,242,.6)" />
+            <circle cx={xa} cy={y(i)} r={1.9} fill="rgba(242,242,242,.42)" />
+            <circle cx={xb} cy={y(i)} r={1.9} fill="rgba(242,242,242,.42)" />
           </g>
         ))}
+
+        <text x={xa} y={412} textAnchor="middle" fontFamily={MONO} fontSize={11} letterSpacing="2"
+          fill="rgba(242,242,242,.4)">
+          UNRESOLVED
+        </text>
+        <text x={xb} y={412} textAnchor="middle" fontFamily={MONO} fontSize={11} letterSpacing="2"
+          fill="rgba(110,231,168,.55)">
+          CLEARED
+        </text>
       </g>
     </svg>
   );
