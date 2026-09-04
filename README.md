@@ -49,9 +49,23 @@ Set a noise level, hit reconcile, and watch four passes resolve the batch. Four 
 - **Forecast** — payment lag is *learned* from the wires just reconciled, not assumed, so
   the cash curve is a byproduct of the matching. It shows the day you breach your floor
   and ranks the collections that would fix it.
+- **Leakage** — the pass that looks for money rather than matches. Counterparties who
+  systematically short-pay, deductions above your contracted rate, duplicate credits, cash
+  you cannot attribute, receivables past due. Split into *recoverable* (someone owes you
+  this) and *exposure* (this is at risk). Every finding lists the records it came from.
+- **Ask** — grounded question answering over the current run. It sees this reconciliation
+  and nothing else, cites the record ids behind every claim, and clicking a citation jumps
+  to the graph with that wire pinned. When the data cannot settle a question it says so and
+  marks the answer ungrounded rather than inventing one.
 - **Exceptions** — everything unresolved, ranked by value at risk, each carrying why it
-  failed. Review one, pick the invoices it settles, and the engine mines a durable rule
-  from your decision. Re-run and the rules apply.
+  failed. Review one, pick the invoices it settles from ranked candidates, and the engine
+  mines a durable rule from your decision. Re-run and the rules apply.
+
+**Audit pack** — one button produces a self-contained HTML report: the metrics, every
+cleared match with what was billed against what arrived, the exceptions and their reasons,
+the analyst decisions, the rules those decisions produced, the leakage findings, and a
+methodology note stating how each number was computed and what it does not cover. It is
+the artefact the reconciliation is actually for.
 
 ## How it's measured
 

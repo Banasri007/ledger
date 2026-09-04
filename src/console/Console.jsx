@@ -14,6 +14,7 @@ import { Exceptions } from "./Exceptions.jsx";
 import { Forecast } from "./Forecast.jsx";
 import { Graph } from "./Graph.jsx";
 import { Leakage } from "./Leakage.jsx";
+import { Ask } from "./Ask.jsx";
 import { generateBatch } from "../engine/generate.js";
 import {
   mineRules,
@@ -74,6 +75,7 @@ function Console({ onBack }) {
   const [meter, setMeter] = useState(null);
   const [upload, setUpload] = useState(null);
   const [csvErr, setCsvErr] = useState(null);
+  const [askFocus, setAskFocus] = useState(null);
   const [durable, setDurable] = useState(false);
 
   const batch = useMemo(
@@ -341,7 +343,7 @@ function Console({ onBack }) {
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: "flex", gap: 4 }}>
-            {["graph", "confidence", "forecast", "leakage", "exceptions"].map((v) => (
+            {["graph", "ask", "confidence", "forecast", "leakage", "exceptions"].map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
@@ -695,7 +697,8 @@ function Console({ onBack }) {
 
         {view === "graph" && (
           <Graph
-            key={`${difficulty}:${seed}`}
+            key={`${difficulty}:${seed}:${askFocus || ""}`}
+            initialSel={askFocus}
             batch={batch}
             matches={matches}
             threshold={threshold}
@@ -710,6 +713,25 @@ function Console({ onBack }) {
         )}
         {view === "forecast" && (
           <Forecast batch={batch} matches={matches} threshold={threshold} />
+        )}
+        {view === "ask" && (
+          <Ask
+            batch={batch}
+            matches={matches}
+            stats={stats}
+            threshold={threshold}
+            difficulty={difficulty}
+            seed={seed}
+            onFocus={(id) => {
+              const wire = id.startsWith("BNK")
+                ? id
+                : matches.find((m) => m.invoiceIds.includes(id))?.bankId;
+              if (wire) {
+                setAskFocus(wire);
+                setView("graph");
+              }
+            }}
+          />
         )}
         {view === "leakage" && (
           <Leakage batch={batch} matches={matches} threshold={threshold} />

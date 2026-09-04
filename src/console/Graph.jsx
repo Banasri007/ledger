@@ -85,10 +85,12 @@ function Legend({ matches, unresolved, nm }) {
   );
 }
 
-function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty }) {
+function Graph({ batch, matches, threshold, hover, setHover, pass, difficulty, initialSel }) {
   const { bank, ledger } = batch;
 
-  const [sel, setSel] = useState(null);
+  /* initialSel arrives from a citation in Ask; the component is keyed on it so
+     a new citation remounts here with that wire already pinned and traced */
+  const [sel, setSel] = useState(initialSel || null);
   const [fit, setFit] = useState(true);
   const [box, setBox] = useState({ w: 1200, h: 640 });
   const boxRef = useRef(null);
