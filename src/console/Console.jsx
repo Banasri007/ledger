@@ -13,6 +13,7 @@ import { Confidence } from "./Confidence.jsx";
 import { Exceptions } from "./Exceptions.jsx";
 import { Forecast } from "./Forecast.jsx";
 import { Graph } from "./Graph.jsx";
+import { Leakage } from "./Leakage.jsx";
 import { generateBatch } from "../engine/generate.js";
 import {
   mineRules,
@@ -338,7 +339,7 @@ function Console({ onBack }) {
           </div>
           <div style={{ flex: 1 }} />
           <div style={{ display: "flex", gap: 4 }}>
-            {["graph", "confidence", "forecast", "exceptions"].map((v) => (
+            {["graph", "confidence", "forecast", "leakage", "exceptions"].map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
@@ -685,6 +686,9 @@ function Console({ onBack }) {
         )}
         {view === "forecast" && (
           <Forecast batch={batch} matches={matches} threshold={threshold} />
+        )}
+        {view === "leakage" && (
+          <Leakage batch={batch} matches={matches} threshold={threshold} />
         )}
         {view === "exceptions" && (
           <Exceptions
