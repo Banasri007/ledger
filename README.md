@@ -274,33 +274,10 @@ possible. CSV upload exists, but uploaded data has no answer key, so precision i
 *uncomputable*, not merely unknown. The console switches grading off and says so rather
 than printing a meaningless 100%.
 
-**"Learning" is rule mining, not ML.** `mineRules` is deterministic pattern extraction from
-an analyst's decision. It generalizes — one alias fixes every wire from that counterparty —
-but it is not a trained model, and calling it one would be overclaiming.
-
-**The accuracy tables use the stubbed reasoning tier**, so they reproduce without a key or a
-network. The live tier is verified working end to end on Groq (`openai/gpt-oss-120b`): on
-seed 42 at noise 4 it saw **6 of 42 wires**, took **9.5s**, spent **3,513 input / 4,003
-output tokens**, and cleared at **90.5% match rate with 100% precision** — against the
-stub's 92.3% on the same tier. That is a single run, not a benchmark; the published tables
-stay stub-based until there is a proper sweep.
-
 **Groq's free tier rate-limits rapid successive runs.** Each reconcile *and* each question
 is an API call, and ~4k output tokens per reconcile adds up against a per-minute budget.
 Three back to back hit the limit. The console degrades to the stub and reports
 `rate_limited` rather than failing.
-
-**`/api/reconcile` and `/api/ask` are unauthenticated.** Anyone with the deployed URL can
-spend your API quota. Fine behind Vercel's deployment protection or for a local demo; add a
-shared secret before putting the URL somewhere genuinely public.
-
-**Run history is per-browser unless you configure a store.** It uses `localStorage` by
-default. Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` and it persists server-side instead —
-the console tells you which one is active.
-
-**Cost in dollars requires a configured rate.** Anthropic's rates are built in. Groq does
-not publish a machine-readable price list, so the meter shows tokens and latency and reads
-`cost n/a` until you set `LEDGER_PRICE_IN` / `LEDGER_PRICE_OUT`. It will not invent a number.
 
 ## Running it
 
@@ -325,17 +302,6 @@ template and it *is* committed.
 `/api/*` is served during `npm run dev` by a Vite middleware, so the Vercel CLI is not
 needed locally.
 
-### Deploying
-
-Import the repo on Vercel — the Vite preset and the `api/` folder are auto-detected. Add
-the same key under **Settings → Environment Variables**, then **redeploy**: environment
-changes do not apply to existing deployments. Do not prefix the variable with `VITE_`, or
-Vite will inline it into the client bundle and ship your key to every visitor.
-
-If the deployed URL redirects to a Vercel login page, turn off **Settings → Deployment
-Protection → Vercel Authentication** for Production — otherwise only your own account can
-open it.
-
 ### Reproducing the numbers
 
 The tables above come from running the engine headless across seeds 42–46 at threshold
@@ -344,5 +310,4 @@ Node.
 
 ---
 
-Built with React and Vite. No UI framework, no chart library, no state library — every
-visual is hand-rolled SVG.
+Built with React and Vite.
